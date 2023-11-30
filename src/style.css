@@ -1,0 +1,12 @@
+/* |Testing Area Identifiers and Components| */
+#content > div > button{
+    padding: 10px 5px 10px 5px;
+    font-family:monospace;
+    background-color: lightcoral;
+    border: 1px solid lightcoral; 
+    cursor: pointer;
+}
+#content > div > button:hover{
+    background-color: lightblue;
+    border: 1px solid lightblue;
+}
