@@ -1,6 +1,6 @@
 // Gameboard(): Gameboard factory function.
 export const Gameboard = () => {
-    const gameboard = [...Array(11)].map(() => Array(11).fill("")); 
+    const gameboard = [...Array(10)].map(() => Array(10).fill("")); 
 
     const receiveAttack = () => {
         // Will take a pair of coordinates, determines whether or not the attack hit a ship and

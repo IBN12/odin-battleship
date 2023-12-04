@@ -1,5 +1,6 @@
 import { Ship } from "./utils/Ship";
-import { Gameboard } from "./utils/Gameboard";
+
+import { InitializeDOM } from "./modules/DomContent";
 
 import "./style.css";
 
@@ -29,14 +30,14 @@ buttonOne.textContent = 'Click Me!';
 
 const newSound = new Audio(testSound);
 
-buttonOne.addEventListener('click', () => {
-    console.log('You clicked the button!'); // Testing
-    newSound.play();
-}); 
+// buttonOne.addEventListener('click', () => {
+//     console.log('You clicked the button!'); // Testing
+//     newSound.play();
+// }); 
 
-buttonOneContainer.appendChild(buttonOne);
-content.appendChild(buttonOneContainer);
-console.log('\n'); // Testing 
+// buttonOneContainer.appendChild(buttonOne);
+// content.appendChild(buttonOneContainer);
+// console.log('\n'); // Testing 
 
 /** |Spread Syntax(...)|
  * The spread(...) syntax allow an iterable, such as an array or string, to be expanded in places 
@@ -54,10 +55,7 @@ console.log('\n'); // Testing
 const arrTest = [...Array(8)].map(() => Array(8).fill("")); 
 console.log('The Array: ', arrTest); // Testing
 console.log('\n'); // Testing
-
-const boardOne = Gameboard();
-console.log('Board One: ', boardOne.gameboard); // Testing
-console.log('\n'); // Testing
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+InitializeDOM();

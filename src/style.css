@@ -10,3 +10,64 @@
     background-color: lightblue;
     border: 1px solid lightblue;
 }
+
+/***************************************************************************************************************************************************************************/
+/***************************************************************************************************************************************************************************/
+/* |Main Content Section| */
+#content{
+    border: 1px solid red;
+    padding: 10px; 
+}
+
+/***************************************************************************************************************************************************************************/
+/***************************************************************************************************************************************************************************/
+/* |Gameboard Container| */
+.gameboard-container{
+    display: flex;
+    gap: 10px;
+
+    border: 1px solid blue;
+    padding: 10px;
+    width: 1000px;
+    margin: 0 auto;
+}
+
+/* Player One Board */
+.player-one-board{
+    display: flex;
+    flex-direction: column;
+
+    border: 1px solid green;
+    padding: 10px;
+}
+.player-one-board > div{ /* columns */
+    display: flex;
+
+    /* border: 1px solid black; */
+    /* padding: 5px; */
+}
+.player-one-board > div > div{ /* rows */
+    border: 1px solid lightcoral;
+    padding: 5px;
+    width: 30px;
+    height: 30px;
+}
+
+/* Player Two Board */
+.player-two-board{
+    border: 1px solid purple;
+}
+
+
+/* hover-test */
+.hover-test{
+    border: 1px solid black !important;
+}
+
+/***************************************************************************************************************************************************************************/
+/***************************************************************************************************************************************************************************/
+/* |Inteface Section| */
+.interface{
+    border: 1px solid orange;
+    padding: 10px;
+}
