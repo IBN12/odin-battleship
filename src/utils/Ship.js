@@ -1,5 +1,6 @@
 // Ship(): Ship factory function. 
 export const Ship = () => {
+    let defaultLengths = [0, 0, 0, 0, 1, 1, 1, 2, 2, 3]; 
     let length = 0;
     let hits = 0;
     let sunk = false;
@@ -14,5 +15,5 @@ export const Ship = () => {
         return sunk = true;
     }
 
-    return {hit, isSunk};
+    return {hit, isSunk, defaultLengths, length};
 }

@@ -1,6 +1,13 @@
+import { Ship } from "./Ship";
+/** Gameboard
+ * -> Gameboards should be able to place ships at specific coordinates by 
+ * calling the 'ship factory function'. 
+ */
+
 // Gameboard(): Gameboard factory function.
 export const Gameboard = () => {
     const gameboard = [...Array(10)].map(() => Array(10).fill("")); 
+    let shipsOnBoard = 0; 
 
     const receiveAttack = () => {
         // Will take a pair of coordinates, determines whether or not the attack hit a ship and
@@ -8,5 +15,6 @@ export const Gameboard = () => {
         // missed shot. 
     }
 
-    return {gameboard, receiveAttack};
+
+    return {gameboard, shipsOnBoard, receiveAttack, Ship};
 }
