@@ -302,24 +302,76 @@ function EnterX(e){
     console.log('\n'); // Testing
  
     const cell = document.querySelector(`[data-x="${e.target.dataset.x}"][data-y="${e.target.dataset.y}"]`);
-    const nextCell = document.querySelector(`[data-x="${e.target.dataset.x}"][data-y="${parseInt(e.target.dataset.y) + 1}"]`);
+    const nextCellOne = document.querySelector(`[data-x="${e.target.dataset.x}"][data-y="${parseInt(e.target.dataset.y) + 1}"]`);
+    const nextCellTwo = document.querySelector(`[data-x="${e.target.dataset.x}"][data-y="${parseInt(e.target.dataset.y) + 2}"]`);
+    const nextCellThree = document.querySelector(`[data-x="${e.target.dataset.x}"][data-y="${parseInt(e.target.dataset.y) + 3}"]`);
 
     if (!(parseInt(e.target.dataset.y) === 9))
     {
-        cell.classList.add('hover-test');
-        nextCell.classList.add('hover-test');
+        if (ShipData.shipLength === 0)
+        {
+            cell.classList.add('hover-test'); 
+        }
+        else if (ShipData.shipLength === 1)
+        {
+            cell.classList.add('hover-test');
+            nextCellOne.classList.add('hover-test'); 
+        }
+        else if (ShipData.shipLength === 2)
+        {
+            cell.classList.add('hover-test');
+            nextCellOne.classList.add('hover-test');
+            nextCellTwo.classList.add('hover-test');
+        }
+        else if (ShipData.shipLength === 3)
+        {
+            cell.classList.add('hover-test');
+            nextCellOne.classList.add('hover-test'); 
+            nextCellTwo.classList.add('hover-test');
+            nextCellThree.classList.add('hover-test'); 
+        }
     }
+
+    // Note: I could put this in its own function, but for now I will use the EnterX function to test
+    // this alogorithm out. 
+    cell.addEventListener('click', () => {
+        console.log('X: ', cell.dataset.x); 
+        console.log('Y: ', cell.dataset.y); 
+        // TODO: Ship placement on the board can be done inside this function. 
+    });
 }
 
 // LeaveX(): Will leave each cell from the x-axis selection. 
 function LeaveX(e){
     const cell = document.querySelector(`[data-x="${e.target.dataset.x}"][data-y="${e.target.dataset.y}"]`);
-    const nextCell = document.querySelector(`[data-x="${e.target.dataset.x}"][data-y="${parseInt(e.target.dataset.y) + 1}"]`);
+    const nextCellOne = document.querySelector(`[data-x="${e.target.dataset.x}"][data-y="${parseInt(e.target.dataset.y) + 1}"]`);
+    const nextCellTwo = document.querySelector(`[data-x="${e.target.dataset.x}"][data-y="${parseInt(e.target.dataset.y) + 2}"]`);
+    const nextCellThree = document.querySelector(`[data-x="${e.target.dataset.x}"][data-y="${parseInt(e.target.dataset.y) + 3}"]`);
 
     if (e.target.classList.contains('hover-test'))
     {
-        cell.classList.remove('hover-test');
-        nextCell.classList.remove('hover-test'); 
+        if (ShipData.shipLength === 0)
+        {
+            cell.classList.remove('hover-test');
+        }
+        else if (ShipData.shipLength === 1)
+        {
+            cell.classList.remove('hover-test');
+            nextCellOne.classList.remove('hover-test');
+        }
+        else if (ShipData.shipLength === 2)
+        {
+            cell.classList.remove('hover-test');
+            nextCellOne.classList.remove('hover-test');
+            nextCellTwo.classList.remove('hover-test'); 
+        }
+        else if (ShipData.shipLength === 3)
+        {
+            cell.classList.remove('hover-test');
+            nextCellOne.classList.remove('hover-test');
+            nextCellTwo.classList.remove('hover-test');
+            nextCellThree.classList.remove('hover-test'); 
+        }
     }
 }
 
