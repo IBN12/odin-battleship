@@ -306,29 +306,37 @@ function EnterX(e){
     const nextCellTwo = document.querySelector(`[data-x="${e.target.dataset.x}"][data-y="${parseInt(e.target.dataset.y) + 2}"]`);
     const nextCellThree = document.querySelector(`[data-x="${e.target.dataset.x}"][data-y="${parseInt(e.target.dataset.y) + 3}"]`);
 
-    if (!(parseInt(e.target.dataset.y) === 9))
+    if (ShipData.shipLength === 0)
     {
-        if (ShipData.shipLength === 0)
+        cell.classList.add('hover-test'); 
+    }
+    else if (ShipData.shipLength === 1)
+    {
+        if (!(parseInt(e.target.dataset.y) === 9))
         {
-            cell.classList.add('hover-test'); 
+            cell.classList.add('hover-test');
+
+            const nextCellOne = document.querySelector(`[data-x="${e.target.dataset.x}"][data-y="${parseInt(e.target.dataset.y) + 1}"]`);
+            nextCellOne.classList.add('hover-test'); 
         }
-        else if (ShipData.shipLength === 1)
+    }
+    else if (ShipData.shipLength === 2)
+    {
+        if (!((parseInt(e.target.dataset.y) + 2) === 10) && !((parseInt(e.target.dataset.y) + 1) === 9) && !(parseInt(e.target.dataset.y) === 9))
         {
             cell.classList.add('hover-test');
             nextCellOne.classList.add('hover-test'); 
+            nextCellTwo.classList.add('hover-test');
         }
-        else if (ShipData.shipLength === 2)
+    }
+    else if (ShipData.shipLength === 3)
+    {
+        if (!((parseInt(e.target.dataset.y) + 3) === 10) && !((parseInt(e.target.dataset.y) + 2) === 9) && !((parseInt(e.target.dataset.y) + 1) === 9) && !(parseInt(e.target.dataset.y) === 9))
         {
             cell.classList.add('hover-test');
             nextCellOne.classList.add('hover-test');
             nextCellTwo.classList.add('hover-test');
-        }
-        else if (ShipData.shipLength === 3)
-        {
-            cell.classList.add('hover-test');
-            nextCellOne.classList.add('hover-test'); 
-            nextCellTwo.classList.add('hover-test');
-            nextCellThree.classList.add('hover-test'); 
+            nextCellThree.classList.add('hover-test');
         }
     }
 
@@ -406,23 +414,73 @@ function EnterY(e){
     console.log('\n'); // Testing
 
     const cell = document.querySelector(`[data-x="${e.target.dataset.x}"][data-y="${e.target.dataset.y}"]`);
-    const nextCell = document.querySelector(`[data-x="${parseInt(e.target.dataset.x) + 1}"][data-y="${e.target.dataset.y}"]`);
+    const nextCellOne = document.querySelector(`[data-x="${parseInt(e.target.dataset.x) + 1}"][data-y="${e.target.dataset.y}"]`);
+    const nextCellTwo = document.querySelector(`[data-x="${parseInt(e.target.dataset.x) + 2}"][data-y="${e.target.dataset.y}"]`);
+    const nextCellThree = document.querySelector(`[data-x="${parseInt(e.target.dataset.x) + 3}"][data-y="${e.target.dataset.y}"]`);
 
-    if (!(parseInt(e.target.dataset.x) === 9))
+    if (ShipData.shipLength === 0)
     {
         cell.classList.add('hover-test');
-        nextCell.classList.add('hover-test'); 
-    }    
+    }
+    else if (ShipData.shipLength === 1)
+    {
+        if (!(parseInt(e.target.dataset.x) === 9))
+        {
+            cell.classList.add('hover-test');
+            nextCellOne.classList.add('hover-test');
+        }
+    }
+    else if (ShipData.shipLength === 2)
+    {
+        if (!((parseInt(e.target.dataset.x) + 2) === 10) && !((parseInt(e.target.dataset.x) + 1) === 9) && !(parseInt(e.target.dataset.x) === 9))
+        {
+            cell.classList.add('hover-test');
+            nextCellOne.classList.add('hover-test');
+            nextCellTwo.classList.add('hover-test');
+        }
+    }
+    else if (ShipData.shipLength === 3)
+    {
+        if (!((parseInt(e.target.dataset.x) + 3) === 10) && !((parseInt(e.target.dataset.x) + 2) === 9) && !((parseInt(e.target.dataset.x) + 1) === 9) && !(parseInt(e.target.dataset.x) === 9))
+        {
+            cell.classList.add('hover-test');
+            nextCellOne.classList.add('hover-test');
+            nextCellTwo.classList.add('hover-test');
+            nextCellThree.classList.add('hover-test');
+        }
+    }   
 }
 
 // LeaveY(): Will leave each cell from the y-axis selection.
 function LeaveY(e){
     const cell = document.querySelector(`[data-x="${e.target.dataset.x}"][data-y="${e.target.dataset.y}"]`);
-    const nextCell = document.querySelector(`[data-x="${parseInt(e.target.dataset.x) + 1}"][data-y="${e.target.dataset.y}"]`);
+    const nextCellOne = document.querySelector(`[data-x="${parseInt(e.target.dataset.x) + 1}"][data-y="${e.target.dataset.y}"]`);
+    const nextCellTwo = document.querySelector(`[data-x="${parseInt(e.target.dataset.x) + 2}"][data-y="${e.target.dataset.y}"]`);
+    const nextCellThree = document.querySelector(`[data-x="${parseInt(e.target.dataset.x) + 3}"][data-y="${e.target.dataset.y}"]`);
 
     if (e.target.classList.contains('hover-test'))
     {
-        cell.classList.remove('hover-test');
-        nextCell.classList.remove('hover-test'); 
+        if (ShipData.shipLength ===  0)
+        {
+            cell.classList.remove('hover-test');
+        }
+        else if (ShipData.shipLength === 1)
+        {
+            cell.classList.remove('hover-test');
+            nextCellOne.classList.remove('hover-test'); 
+        }
+        else if (ShipData.shipLength === 2)
+        {
+            cell.classList.remove('hover-test');
+            nextCellOne.classList.remove('hover-test');
+            nextCellTwo.classList.remove('hover-test'); 
+        }
+        else if (ShipData.shipLength === 3)
+        {
+            cell.classList.remove('hover-test');
+            nextCellOne.classList.remove('hover-test');
+            nextCellTwo.classList.remove('hover-test');
+            nextCellThree.classList.remove('hover-test'); 
+        }
     }
 }
