@@ -64,6 +64,12 @@
     border: 1px solid black !important;
 }
 
+/* ship-placed - displays each ship placed on the board. */
+.ship-placed{
+    border: 1px solid black !important;
+}
+
+
 /***************************************************************************************************************************************************************************/
 /***************************************************************************************************************************************************************************/
 /* |Inteface Section| */
@@ -73,4 +79,10 @@
     
     border: 1px solid orange;
     padding: 10px;
+}
+
+/* current-coordinate - The current coordinate choosen by the user. */
+.current-coordinate{
+    background-color: lightcoral;
+    border: 1px solid lightcoral;
 }

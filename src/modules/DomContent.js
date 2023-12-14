@@ -17,9 +17,11 @@ const NewGameSelected = (() => {
 // ShipData Literl Object: Will contain ship data to control the flow of ships on the gameboard. 
 let ShipData = {
     lengthIndex: 0,
+    shipsPlaced: 0,
     shipLength: 0, 
     shipsOnBoard: 0,
     placementCommenced: false,
+    shipWasPlaced: false,
 }
 
 // AxisChange Literal Object: 
@@ -37,6 +39,16 @@ export function InitializeDOM(){
     PlayerOneDOM();
     PlayerTwoDOM();
     // AxisDOM();
+}
+// NumberOfShipsPlaced(): Will keep track of the current ship to be placed on the gameboard.
+function NumberOfShipsPlaced(){
+    const numberOfShipsPlaced = document.querySelector('.number-of-ships');
+
+    if (!((ShipData.lengthIndex + 1) > 10))
+    {
+        ShipData.shipsPlaced++;
+        numberOfShipsPlaced.textContent = `Ship: ${ShipData.shipsPlaced}`;
+    }
 }
 
 // GameboardDOM(): The gameboard DOM for the entire application. 
@@ -85,8 +97,6 @@ function PlayerTwoDOM(){
     gameboardContainer.appendChild(playerTwo); 
 }
 
-
-
 // PlaceShips(): Will place the ships on the gameboard.
 function PlaceShips(e){
     const cells = document.querySelectorAll('.player-one-board > div > div'); 
@@ -95,16 +105,27 @@ function PlaceShips(e){
 
     if (ShipData.placementCommenced)
     {
-        const board = Gameboard();
-        const ship = board.Ship();
-    
-        ShipData.shipLength = ship.defaultLengths[ShipData.lengthIndex];
-    
-        console.log('Ship number to be placed: ', ShipData.lengthIndex + 1); // Testing 
-        console.log('The length of the ship to be placed: ', ShipData.shipLength); // Testing 
-        console.log('\n'); // Testing
+        if (ShipData.lengthIndex > 9)
+        {
+            console.log('You have placed all your ships already'); // Testing
+            console.log('Player Two will now place their ships on the board'); // Testing
+            console.log('\n'); // Testing 
+        }
+        else
+        {
+            ShipData.shipWasPlaced = false; 
+            
+            const board = Gameboard();
+            const ship = board.Ship();
         
-        ShipData.lengthIndex++;
+            ShipData.shipLength = ship.defaultLengths[ShipData.lengthIndex];
+        
+            console.log('Ship number to be placed: ', ShipData.lengthIndex + 1); // Testing 
+            console.log('The length of the ship to be placed: ', ShipData.shipLength); // Testing 
+            console.log('\n'); // Testing
+            
+            ShipData.lengthIndex++; // increment to the next ship. 
+        }
     }
 
     for (let i = 0; i < cells.length; i++)
@@ -143,7 +164,7 @@ function InterfaceDOM(){
     newGame.textContent = 'New Game';
 
     const placeShip = document.createElement('button'); 
-    placeShip.textContent = 'Place Ship';
+    placeShip.textContent = `Place Ship`;
 
     const coordinateContainer = document.createElement('div');
     const xCoord = document.createElement('button');
@@ -153,27 +174,36 @@ function InterfaceDOM(){
     coordinateContainer.appendChild(xCoord);
     coordinateContainer.appendChild(yCoord); 
 
+    const numberOfShipsPlaced = document.createElement('div');
+    numberOfShipsPlaced.classList.add('number-of-ships'); 
+
     playerInterface.appendChild(newGame);
     playerInterface.appendChild(placeShip);
     playerInterface.appendChild(coordinateContainer); 
+    playerInterface.appendChild(numberOfShipsPlaced); 
     gameboardContainer.appendChild(playerInterface);
 
     // newGame.addEventListener('click', NewGame);
 
     placeShip.addEventListener('click', e => {
-        ShipData.placementCommenced = true; 
+        ShipData.placementCommenced = true;  
+        NumberOfShipsPlaced(); 
         PlaceShips(e);
     });
 
     xCoord.addEventListener('click', (e) => {
         ShipData.placementCommenced = false;
         AxisChange.axisChange = 1; 
+        yCoord.classList.remove('current-coordinate'); 
+        xCoord.classList.add('current-coordinate'); 
         PlaceShips(e);
     });
 
     yCoord.addEventListener('click', (e) => {
         ShipData.placementCommenced = false; 
         AxisChange.axisChange = 2; 
+        xCoord.classList.remove('current-coordinate');
+        yCoord.classList.add('current-coordinate');
         PlaceShips(e);
     });
 
@@ -346,6 +376,64 @@ function EnterX(e){
         console.log('X: ', cell.dataset.x); 
         console.log('Y: ', cell.dataset.y); 
         // TODO: Ship placement on the board can be done inside this function. 
+
+        if (!ShipData.shipWasPlaced)
+        {
+            if (ShipData.shipLength === 0)
+            {
+                if (cell.classList.contains('ship-placed'))
+                {
+                    console.log('Cell already contains a ship'); // Testing
+                }
+                else
+                {
+                    cell.classList.add('ship-placed'); 
+                    ShipData.shipWasPlaced = true; // Stops the player from placing the same ship multiple times after pressing 'Place Ship' button. 
+                }
+                    
+            }
+            else if (ShipData.shipLength === 1)
+            {
+                if ((cell.classList.contains('ship-placed') && nextCellOne.classList.contains('ship-placed')) 
+                || (cell.classList.contains('ship-placed') || nextCellOne.classList.contains('ship-placed')))
+                {
+                    console.log('Cell already contians a ship'); // Testing
+                }
+                else
+                {
+                    cell.classList.add('ship-placed');
+                    nextCellOne.classList.add('ship-placed');
+                    ShipData.shipWasPlaced = true; // Stops the player from placing the same ship multiple times after pressing 'Place Ship' button. 
+                }
+            }
+            else if (ShipData.shipLength === 2)
+            {
+                if ((cell.classList.contains('ship-placed') && nextCellOne.classList.contains('ship-placed') && nextCellTwo.classList.contains('ship-placed')) 
+                || (cell.classList.contains('ship-placed') || nextCellOne.classList.contains('ship-placed') || nextCellTwo.classList.contains('ship-placed')))
+                {
+                    console.log('Cell already contains a ship'); // Testing
+                }
+                else
+                {
+                    cell.classList.add('ship-placed');
+                    nextCellOne.classList.add('ship-placed');
+                    nextCellTwo.classList.add('ship-placed');
+                    ShipData.shipWasPlaced = true; // Stops the player from placing the same ship multiple times after pressing 'Place Ship' button. 
+                }
+            }
+            else if (ShipData.shipLength === 3)
+            {
+                cell.classList.add('ship-placed');
+                nextCellOne.classList.add('ship-placed');
+                nextCellTwo.classList.add('ship-placed');
+                nextCellThree.classList.add('ship-placed');
+                ShipData.shipWasPlaced = true; // Stops the player from placing the same ship multiple times after pressing 'Place Ship' button. 
+            }  
+        }
+        else
+        {
+            console.log(`Ship ${ShipData.shipsPlaced} has already been placed.`); // Testing 
+        }
     });
 }
 
@@ -449,6 +537,44 @@ function EnterY(e){
             nextCellThree.classList.add('hover-test');
         }
     }   
+
+    // Places the ships on the board cells:
+    cell.addEventListener('click', () => {
+        console.log("X: ", cell.dataset.x); // Testing 
+        console.log("Y: ", cell.dataset.y); // Testing 
+
+        if (!ShipData.shipWasPlaced)
+        {
+            if (ShipData.shipLength === 0)
+            {
+                cell.classList.add('ship-placed');
+            }
+            else if (ShipData.shipLength === 1)
+            {
+                cell.classList.add('ship-placed');
+                nextCellOne.classList.add('ship-placed');
+            }
+            else if (ShipData.shipLength === 2)
+            {
+                cell.classList.add('ship-placed');
+                nextCellOne.classList.add('ship-placed');
+                nextCellTwo.classList.add('ship-placed');
+            }
+            else if (ShipData.shipLength === 3)
+            {
+                cell.classList.add('ship-placed');
+                nextCellOne.classList.add('ship-placed');
+                nextCellTwo.classList.add('ship-placed');
+                nextCellThree.classList.add('ship-placed');
+            }
+
+            ShipData.shipWasPlaced = true;
+        }
+        else 
+        {
+            console.log(`Ship ${ShipData.shipsPlaced} has already been placed.`); // Testing 
+        }
+    });
 }
 
 // LeaveY(): Will leave each cell from the y-axis selection.
