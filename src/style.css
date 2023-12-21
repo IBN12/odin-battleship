@@ -40,13 +40,13 @@
     border: 1px solid green;
     padding: 10px;
 }
-.player-one-board > div{ /* columns */
+.player-one-board > div{ /* rows */
     display: flex;
 
     /* border: 1px solid black; */
     /* padding: 5px; */
 }
-.player-one-board > div > div{ /* rows */
+.player-one-board > div > div{ /* cells */
     border: 1px solid lightcoral;
     padding: 5px;
     width: 30px;
@@ -54,18 +54,37 @@
 }
 
 /* Player Two Board */
-.player-two-board{
-    border: 1px solid purple;
-}
+.computer-gameboard{
+    display: flex;
+    flex-direction: column;
 
+    border: 1px solid purple;
+    padding: 10px;
+}
+.computer-gameboard > div{
+    display: flex;
+
+    /* padding: 10px; */
+}
+.computer-gameboard > div > div{ /* cells */
+    border: 1px solid lightgreen;
+    padding: 5px;
+    width: 30px; 
+    height: 30px;
+}
 
 /* hover-test */
 .hover-test{
     border: 1px solid black !important;
 }
 
-/* ship-placed - displays each ship placed on the board. */
+/* ship-placed - Displays each ship placed on the board. */
 .ship-placed{
+    border: 1px solid black !important;
+}
+
+/* computer-ship-placed - Displays each ship that the computer places on their board. */
+.computer-ship-placed{
     border: 1px solid black !important;
 }
 
