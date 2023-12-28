@@ -21,10 +21,20 @@ let ShipData = {
     shipLength: 0,
 }
 
+let PlacedShips = {
+}
+
 // AxisChange Literal Object: 
 let AxisChange = {
     axisChange: null, 
     axisWasChanged: false,
+}
+
+// activateGame Literal Object:
+let ActivateGame = {
+    activateGame: false, 
+    activatePlayerOneTurn: true,
+    activateComputerTurn: false,
 }
 
 // InitializingDOM(): Intializing DOM Content for the entire application. 
@@ -37,6 +47,7 @@ export function InitializeDOM(){
     PlayerOneDOM();
     ComputerDOM();
     ComputerPlaceShips();
+    // GameInitiated();
     // AxisDOM();
 }
 // NumberOfShipsPlaced(): Will keep track of the current ship to be placed on the gameboard.
@@ -131,13 +142,16 @@ function PlaceShips(e){
         const ship = board.Ship();
     
         ShipData.shipLength = ship.defaultLengths[ShipData.lengthIndex];
-    
+
+        ship.length = ShipData.shipLength + 1; 
+
         console.log('Ship number to be placed: ', ShipData.lengthIndex + 1); // Testing 
         console.log('The length of the ship to be placed: ', ShipData.shipLength); // Testing 
+
+        PlacedShips[`ship ${ShipData.lengthIndex}`] = ship;
+        console.log('Object with placed ships: ', PlacedShips); // Testing 
         console.log('\n'); // Testing
     }
-
-
 
     for (let i = 0; i < cells.length; i++)
     {
@@ -173,7 +187,88 @@ function PlaceShips(e){
         }
 
         // TODO: Activate the computer gameboard to begin the game. 
+        ActivateGame.activateGame = true; 
+        console.log("Game Activated: ", ActivateGame.activateGame); // Testing
+        GameInitiated(); 
     }
+}
+
+// GameInitiated(): The player and computer will take turns picking coordinates on each others gameboard to sink a ship.
+function GameInitiated(){
+    const computerCells = document.querySelectorAll(`.computer-gameboard > div > div`);
+    const playerCells = document.querySelectorAll(`.player-one-gameboard > div > div`); 
+
+    if (ActivateGame.activateGame)
+    {
+        computerCells.forEach((cell) => {
+            cell.addEventListener('click', PlayerOneTurn);
+        });
+    }
+
+    if (!ActivateGame.activatePlayerOneTurn)
+    {
+        computerCells.forEach((cell) => {
+            cell.removeEventListener('click', PlayerOneTurn); 
+        });
+        console.log("Player One Turn Over"); // Testing 
+        console.log("\n"); // Testing
+        
+        ComputerTurn();  
+    }
+}
+
+// PlayerOneTurn(): Player one will choose a spot on the board. 
+function PlayerOneTurn(e){
+    const computerCell = document.querySelector(`.computer-gameboard > div > div[data-x="${e.target.dataset.x}"][data-y="${e.target.dataset.y}"]`); 
+    console.log(e.target); // Testing 
+    console.log(computerCell); // Testing 
+    console.log("X: ", e.target.dataset.x); // Testing 
+    console.log("Y: ", e.target.dataset.y); // Testing
+
+    ActivateGame.activatePlayerOneTurn = false;
+    ActivateGame.activateComputerTurn = true;
+
+    GameInitiated(); 
+}
+
+// ComputerTurn(): Computer will choose a spont on player one's board.
+function ComputerTurn(){
+    const xCoordRandom = Math.floor(Math.random() * 10);
+    const yCoordRandom = Math.floor(Math.random() * 10); 
+    const playerOneCell = document.querySelector(`[data-x="${xCoordRandom}"][data-y="${yCoordRandom}"]`);
+    console.log('Computer choose: ', playerOneCell); // Testing 
+    console.log("\n"); // Testing 
+
+    if (playerOneCell.classList.contains('ship-placed'))
+    {
+        for (let key in PlacedShips)
+        {
+            for (let coord in PlacedShips[key].coordinates)
+            {
+                if (PlacedShips[key].coordinates[coord][0] === xCoordRandom && PlacedShips[key].coordinates[coord][1] === yCoordRandom)
+                {
+                    console.log('The Computer Got A Hit! ', [xCoordRandom, yCoordRandom]); // Testing 
+                }
+            }
+        }
+    }
+
+    ActivateGame.activateComputerTurn = false;
+    ActivateGame.activatePlayerOneTurn = true; 
+    GameInitiated(); 
+
+    // while(ActivateGame.activateComputerTurn)
+    // {
+    //     xCoordRandom = Math.floor(Math.random() * 10);
+    //     yCoordRandom = Math.floor(Math.random() * 10);
+    //     const playerOneCell = document.querySelector(`.player-one-gameboard > div > div[data-x="${xCoordRandom}"][data-y="${yCoordRandom}"]`); 
+
+    //     console.log('Computer choose: ', playerOneCell); // Testing
+    //     console.log('\n'); // Testing
+
+    //     ActivateGame.activateComputerTurn = false; 
+    //     ActivateGame.activatePlayerOneTurn = true; 
+    // }
 }
 
 // ComputerPlaceShips(): The computer will place ships on their gameboard.
@@ -186,23 +281,36 @@ function ComputerPlaceShips(){
 
     const computerBoard = Gameboard();
     const computerShips = computerBoard.Ship();
+
     computerShips.defaultLengths.forEach((ship) => {
         let computerShipPlaced = false;
         let xCoordRandom = Math.floor(Math.random() * (computerRows.length)); // Returns a random number from 0 to 9.
         let yCoordRandom = Math.floor(Math.random() * 10); 
         let axisRandom = Math.floor(Math.random() * 2);
-        let xLength = 0;
-        let yLength = 0; 
+        let xLengthOne = 0, xLengthTwo = 0, xLengthThree = 0;
+        let yLengthOne = 0, yLengthTwo = 0, yLengthThree = 0; 
 
         if (axisRandom === 1) // x-axis
         {
-            xLength = 0; 
-            yLength = ship; 
+            xLengthOne = 0; 
+            yLengthOne = 1; 
+
+            xLengthTwo = 0;
+            yLengthTwo = 2;
+
+            xLengthThree = 0;
+            yLengthThree = 3;
         }
         else if (axisRandom === 0) // y-axis
         {
-            xLength = ship;
-            yLength = 0;
+            xLengthOne = 1;
+            yLengthOne = 0;
+
+            xLengthTwo = 2;
+            yLengthTwo = 0;
+
+            xLengthThree = 3;
+            yLengthThree = 0; 
         }
 
 
@@ -235,6 +343,7 @@ function ComputerPlaceShips(){
     
             const computerCell = document.querySelector(`.computer-gameboard > div > div[data-x="${xCoordRandom}"][data-y="${yCoordRandom}"]`);
             computerCell.classList.add('computer-ship-placed'); 
+            computerCell.setAttribute('style', 'background-color: purple;');
         }
         else if (ship === 1)
         {
@@ -262,8 +371,8 @@ function ComputerPlaceShips(){
                     console.log(coordinates[key]); // Testing
                     while (!coordinatesNotOverlapping)
                     {
-                        if (((coordinates[key][0] === xCoordRandom && coordinates[key][1] === yCoordRandom) || (coordinates[key][0] === (xCoordRandom + xLength) && coordinates[key][1] === (yCoordRandom + yLength)))
-                        || ((coordinates[key][0] === xCoordRandom && coordinates[key][1] === yCoordRandom) && (coordinates[key][0] === (xCoordRandom + xLength ) && coordinates[key][1] === (yCoordRandom + yLength))))
+                        if (((coordinates[key][0] === xCoordRandom && coordinates[key][1] === yCoordRandom) || (coordinates[key][0] === (xCoordRandom + xLengthOne) && coordinates[key][1] === (yCoordRandom + yLengthOne)))
+                        || ((coordinates[key][0] === xCoordRandom && coordinates[key][1] === yCoordRandom) && (coordinates[key][0] === (xCoordRandom + xLengthOne ) && coordinates[key][1] === (yCoordRandom + yLengthOne))))
                         {
                             xCoordRandom = Math.floor(Math.random() * computerRows.length); 
                             yCoordRandom = Math.floor(Math.random() * 10); 
@@ -285,7 +394,7 @@ function ComputerPlaceShips(){
                 }
 
                 const computerCell = document.querySelector(`.computer-gameboard > div > div[data-x="${xCoordRandom}"][data-y="${yCoordRandom}"]`);
-                const computerCellOne = document.querySelector(`.computer-gameboard > div > div[data-x="${xCoordRandom + xLength}"][data-y="${yCoordRandom + yLength}"]`);
+                const computerCellOne = document.querySelector(`.computer-gameboard > div > div[data-x="${xCoordRandom + xLengthOne}"][data-y="${yCoordRandom + yLengthOne}"]`);
                 console.log(computerCell);
                 console.log(computerCellOne); 
                 
@@ -318,133 +427,217 @@ function ComputerPlaceShips(){
             computerCell.classList.add('computer-ship-placed');
             computerCell.setAttribute('style', 'background-color: red;'); // Testing
 
-            const computerCellOne = document.querySelector(`.computer-gameboard > div > div[data-x="${xCoordRandom + xLength}"][data-y="${yCoordRandom + yLength}"]`);
+            const computerCellOne = document.querySelector(`.computer-gameboard > div > div[data-x="${xCoordRandom + xLengthOne}"][data-y="${yCoordRandom + yLengthOne}"]`);
             computerCellOne.classList.add('computer-ship-placed'); 
             computerCellOne.setAttribute('style', 'background-color: red;'); // Testing 
         }
+        else if (ship === 2)
+        {
+            console.log(`|Ship ${ship}|`); // Testing
+            while (!computerShipPlaced)
+            {
+                let coordinates = {};
+                let coordinateIndex = 0; 
+                
+                // Find which coordinates already have ship placements (Find 'computer-ship-placed'): 
+                computerCells.forEach((cell) => {
+                    if (cell.classList.contains('computer-ship-placed'))
+                    {
+                        console.log('X Cell: ', cell.dataset.x); // Testing
+                        console.log('Y Cell: ', cell.dataset.y); // Testing
+                        console.log('X Random: ', xCoordRandom); // Testing 
+                        console.log('Y Random: ', yCoordRandom); // Testing 
+                        coordinates[coordinateIndex++] = [parseInt(cell.dataset.x), parseInt(cell.dataset.y)];
+                        console.log('\n'); // Testing
+                    }
+                });
+                console.log('Coordinates with ship placements: ', coordinates); // Testing
 
+                // Testing for overlapping ship placements and searching for open cells. 
+                for (let key in coordinates)
+                {
+                    // Test if ship length 2 is overlapping the other ships on the board. 
+                    let coordinatesNotOverlapping = false; 
+                    console.log(coordinates[key]); // Testing 
+                    while(!coordinatesNotOverlapping)
+                    {
+                        if (((coordinates[key][0] === xCoordRandom && coordinates[key][1] === yCoordRandom) || 
+                        (coordinates[key][0] === (xCoordRandom + xLengthOne) && coordinates[key][1] === (yCoordRandom + yLengthOne)) || 
+                        (coordinates[key][0] === (xCoordRandom + xLengthTwo)) && (coordinates[key][1] === (yCoordRandom + yLengthTwo)))
+                        || ((coordinates[key][0] === xCoordRandom && coordinates[key][1] === yCoordRandom) && 
+                        (coordinates[key][0] === (xCoordRandom + xLengthOne) && coordinates[key][1] === (yCoordRandom + yLengthOne)) && 
+                        (coordinates[key][0] === (xCoordRandom + xLengthTwo) && coordinates[key][1] === (yCoordRandom + yLengthTwo))))
+                        {
+                            xCoordRandom = Math.floor(Math.random() * computerRows.length);
+                            yCoordRandom = Math.floor(Math.random() * 10); 
+                            console.log("found"); // Testing
+                        }
+                        else
+                        {
+                            coordinatesNotOverlapping = true;
+                        }
 
-        // while (!computerShipPlaced)
-        // {
-        //     if ((document.querySelector(`.computer-gameboard > div > div[data-x="${xCoordRandom}"][data-y="${yCoordRandom}"]`).classList.contains('computer-ship-placed')))
-        //     {
-        //         xCoordRandom = Math.floor(Math.random() * (computerRows.length));
-        //         yCoordRandom = Math.floor(Math.random() * 10);
-        //     }
+                        // Stop the coordinates from leaving the board if they are changed. 
+                        if ((xCoordRandom + 2) >= 10 || (yCoordRandom + 2) >= 10)
+                        {
+                            xCoordRandom = Math.floor(Math.random() * computerRows.length);
+                            yCoordRandom = Math.floor(Math.random() * 10); 
+                        }
+                    }
+                }
 
-        //     if ((xCoordRandom + 1) >= 10 || (yCoordRandom + 1) >= 10)
-        //     {
-        //         console.log('X and Y are greater than 10'); // Testing 
-        //         console.log('X: ', xCoordRandom + 1); // Testing 
-        //         console.log('Y: ', yCoordRandom + 1); // Testing
-        //         console.log('\n'); // Testing
-        //         xCoordRandom = Math.floor(Math.random() * (computerRows.length));
-        //         yCoordRandom = Math.floor(Math.random() * 10); 
-        //     }
-        //     else
-        //     {
-        //         computerShipPlaced = true; 
-        //     }
-        // }
+                const computerCell = document.querySelector(`.computer-gameboard > div > div[data-x="${xCoordRandom}"][data-y="${yCoordRandom}"]`); // Testing
+                const computerCellOne = document.querySelector(`.computer-gameboard > div > div[data-x="${xCoordRandom + xLengthOne}"][data-y="${yCoordRandom + yLengthOne}"]`); // Testing
+                const computerCellTwo = document.querySelector(`.computer-gameboard > div > div[data-x="${xCoordRandom + xLengthTwo}"][data-y="${yCoordRandom + yLengthTwo}"]`); // Testing
+                console.log(computerCell); // Testing 
+                console.log(computerCellOne); // Testing 
+                console.log(computerCellTwo); // Testing 
 
-        // if (ship === 0)
-        // {
-        //     const computerCell = document.querySelector(`.computer-gameboard > div > div[data-x="${xCoordRandom}"][data-y="${yCoordRandom}"]`);
-        //     computerCell.classList.add('computer-ship-placed'); 
-        // }
-        // else if (ship === 1)
-        // {
-        //     if (axisRandom === 1) // x-axis
-        //     {
-        //         const computerCell = document.querySelector(`.computer-gameboard > div > div[data-x="${xCoordRandom}"][data-y="${yCoordRandom}"]`); 
-        //         computerCell.classList.add('computer-ship-placed'); 
-        //         computerCell.setAttribute('style', 'background-color: red;'); // Testing
+                if ((xCoordRandom + 2) >= 10 || (yCoordRandom + 2) >= 10)
+                {
+                    console.log("Coordinates are off the board."); // Testing
+                    console.log("X: ", xCoordRandom + 2); // Testing 
+                    console.log("Y: ", yCoordRandom + 2); // Testing
+                    console.log('\n'); // Testing 
 
-        //         const computerCellOne = document.querySelector(`.computer-gameboard > div > div[data-x="${xCoordRandom}"][data-y="${yCoordRandom + 1}"]`);
-        //         computerCellOne.classList.add('computer-ship-placed'); 
-        //         computerCellOne.setAttribute('style', 'background-color: red;'); // Testing 
-        //     }
-        //     else if (axisRandom === 0) // y-axis
-        //     {
-        //         const computerCell = document.querySelector(`.computer-gameboard > div > div[data-x="${xCoordRandom}"][data-y="${yCoordRandom}"]`); 
-        //         computerCell.classList.add('computer-ship-placed'); 
-        //         computerCell.setAttribute('style', 'background-color: red;'); // Testing
+                    xCoordRandom = Math.floor(Math.random() * computerRows.length);
+                    yCoordRandom = Math.floor(Math.random() * 10); 
+                }
+                else if (computerCell.classList.contains('computer-ship-placed') || computerCellOne.classList.contains('computer-ship-placed') || computerCellTwo.classList.contains('computer-ship-placed'))
+                {
+                    console.log('There is an overlap.'); // Testing
+                    xCoordRandom = Math.floor(Math.random() * computerRows.length);
+                    yCoordRandom = Math.floor(Math.random() * 10);
+                }
+                else
+                {
+                    console.log("Leaving..."); // Testing 
+                    console.log('\n'); // Testing 
+                    computerShipPlaced = true; // Testing 
+                }
+                console.log("-----------------------------"); // Testing 
+            } 
 
-        //         const computerCellOne = document.querySelector(`.computer-gameboard > div > div[data-x="${xCoordRandom + 1}"][data-y="${yCoordRandom}"]`);
-        //         computerCellOne.classList.add('computer-ship-placed'); 
-        //         computerCellOne.setAttribute('style', 'background-color: red;'); // Testing 
-        //     }
-        // }
-        // else if (ship === 2)
-        // {
-        //     if (axisRandom === 1)
-        //     {
-        //         const computerCell = document.querySelector(`.computer-gameboard > div > div[data-x="${xCoordRandom}"][data-y="${yCoordRandom}"]`); 
-        //         computerCell.classList.add('computer-ship-placed');
-        //         computerCell.setAttribute('style', 'background-color: green;');
+            const computerCell = document.querySelector(`.computer-gameboard > div > div[data-x="${xCoordRandom}"][data-y="${yCoordRandom}"]`);
+            computerCell.classList.add('computer-ship-placed');
+            computerCell.setAttribute('style', 'background-color: green;'); 
 
-        //         const computerCellOne = document.querySelector(`.computer-gameboard > div > div[data-x="${xCoordRandom}"][data-y="${yCoordRandom + 1}"]`);
-        //         computerCellOne.classList.add('computer-ship-placed');
-        //         computerCellOne.setAttribute('style', 'background-color: green;'); // Testing    
+            const computerCellOne = document.querySelector(`.computer-gameboard > div > div[data-x="${xCoordRandom + xLengthOne}"][data-y="${yCoordRandom + yLengthOne}"]`);
+            computerCellOne.classList.add('computer-ship-placed');
+            computerCellOne.setAttribute('style', 'background-color: green;');
 
-        //         const computerCellTwo = document.querySelector(`.computer-gameboard > div > div[data-x="${xCoordRandom}"][data-y="${yCoordRandom + 2}"]`);
-        //         computerCellTwo.classList.add('computer-ship-placed'); 
-        //         computerCellTwo.setAttribute('style', 'background-color: green;'); // Testing 
-        //     }
-        //     else if(axisRandom === 0)
-        //     {
-        //         const computerCell = document.querySelector(`.computer-gameboard > div > div[data-x="${xCoordRandom}"][data-y="${yCoordRandom}"]`);
-        //         computerCell.classList.add('computer-ship-placed');
-        //         computerCell.setAttribute('style', 'background-color: green;'); // Testing 
+            const computerCellTwo = document.querySelector(`.computer-gameboard > div > div[data-x="${xCoordRandom + xLengthTwo}"][data-y="${yCoordRandom + yLengthTwo}"]`);
+            computerCellTwo.classList.add('computer-ship-placed'); 
+            computerCellTwo.setAttribute('style', 'background-color: green;'); 
+        }
+        else if (ship === 3)
+        {
+            console.log(`|Ship ${ship}|`);   
+            while(!computerShipPlaced)
+            {
+                let coordinates = {};
+                let coordinateIndex = 0; 
 
-        //         const computerCellOne = document.querySelector(`.computer-gameboard > div > div[data-x="${xCoordRandom + 1}"][data-y="${yCoordRandom}"]`); 
-        //         computerCellOne.classList.add('computer-ship-placed'); 
-        //         computerCellOne.setAttribute('style', 'background-color: green;'); // Testing 
+                // Find which coordinates already have ship placements (Find 'computer-ship-placed'): 
+                computerCells.forEach((cell) => {
+                    if (cell.classList.contains('computer-ship-placed'))
+                    {
+                        console.log("X Cell: ", cell.dataset.x); // Testing
+                        console.log("Y Cell: ", cell.dataset.y); // Testing 
+                        console.log("X Random: ", xCoordRandom); // Testing
+                        console.log("Y Random: ", yCoordRandom); // Testing
+                        coordinates[coordinateIndex++] = [parseInt(cell.dataset.x), parseInt(cell.dataset.y)];
+                        console.log('\n'); // Testing
+                    }
+                });
+                console.log("Coordinates with ship placements: ", coordinates); // Testing 
 
-        //         const computerCellTwo = document.querySelector(`.computer-gameboard > div > div[data-x="${xCoordRandom + 2}"][data-y="${yCoordRandom}"]`); 
-        //         computerCellTwo.classList.add('computer-ship-placed'); 
-        //         computerCellTwo.setAttribute('style', 'background-color: green;');  // Testing 
-        //     }
-        // }
-        // else if (ship === 3)
-        // {
-        //     if (axisRandom === 1)
-        //     {
-        //         const computerCell = document.querySelector(`.computer-gameboard > div > div[data-x="${xCoordRandom}"][data-y="${yCoordRandom}"]`); 
-        //         computerCell.classList.add('computer-ship-placed');
-        //         computerCell.setAttribute('style', 'background-color: green;');
+                // Testing for overlapping ship placements and searching for open cells. 
+                for (let key in coordinates)
+                {
+                    // Test if ship length 2 is overlapping the other ships on the board. 
+                    let coordinatesNotOverlapping = false;
+                    console.log(coordinates[key]); // Testing 
+                    while(!coordinatesNotOverlapping)
+                    {
+                        if (((coordinates[key][0] === xCoordRandom && coordinates[key][1] === yCoordRandom) ||
+                         (coordinates[key][0] === (xCoordRandom + xLengthOne) && coordinates[key][1] === (yCoordRandom + yLengthOne)) ||
+                         (coordinates[key][0] === (xCoordRandom + xLengthTwo) && coordinates[key][1] === (yCoordRandom + yLengthTwo)) ||
+                         (coordinates[key][0] === (xCoordRandom + xLengthThree) && coordinates[key][1] === (yCoordRandom + yLengthThree)))
+                         || ((coordinates[key][0] === xCoordRandom && coordinates[key][1] === yCoordRandom) && 
+                         (coordinates[key][0] === (xCoordRandom + xLengthOne) && coordinates[key][1] === (yCoordRandom + yLengthOne)) &&
+                         (coordinates[key][0] === (xCoordRandom + xLengthTwo) && coordinates[key][1] === (yCoordRandom + yLengthTwo)) && 
+                         (coordinates[key][0] === (xCoordRandom + xLengthThree) && coordinates[key][1] === (yCoordRandom + yLengthThree))))
+                        {
+                            xCoordRandom = Math.floor(Math.random() * computerRows.length);
+                            yCoordRandom = Math.floor(Math.random() * 10); 
+                            console.log("found"); // Testing
+                        }
+                        else 
+                        {
+                            coordinatesNotOverlapping = true;
+                        }
 
-        //         const computerCellOne = document.querySelector(`.computer-gameboard > div > div[data-x="${xCoordRandom}"][data-y="${yCoordRandom + 1}"]`);
-        //         computerCellOne.classList.add('computer-ship-placed');
-        //         computerCellOne.setAttribute('style', 'background-color: green;'); // Testing    
+                        // Stop the coordinates from leaving the board if they are changed. 
+                        if ((xCoordRandom + 3) >= 10 || (yCoordRandom + 3) >= 10)
+                        {
+                            xCoordRandom = Math.floor(Math.random() * computerRows.length);
+                            yCoordRandom = Math.floor(Math.random() * 10); 
+                        }
+                    }
+                }
 
-        //         const computerCellTwo = document.querySelector(`.computer-gameboard > div > div[data-x="${xCoordRandom}"][data-y="${yCoordRandom + 2}"]`);
-        //         computerCellTwo.classList.add('computer-ship-placed'); 
-        //         computerCellTwo.setAttribute('style', 'background-color: green;'); // Testing 
+                const computerCell = document.querySelector(`.computer-gameboard > div > div[data-x="${xCoordRandom}"][data-y="${yCoordRandom}"]`); // Testing
+                const computerCellOne = document.querySelector(`.computer-gameboard > div > div[data-x="${xCoordRandom + xLengthOne}"][data-y="${yCoordRandom + yLengthOne}"]`); // Testing
+                const computerCellTwo = document.querySelector(`.computer-gameboard > div > div[data-x="${xCoordRandom + xLengthTwo}"][data-y="${yCoordRandom + yLengthTwo}"]`); // Testing
+                const computerCellThree = document.querySelector(`.computer-gameboard > div > div[data-x="${xCoordRandom + xLengthThree}"][data-y="${yCoordRandom + yLengthThree}"]`); // Testing
+                console.log(computerCell); // Testing
+                console.log(computerCellOne); // Testing
+                console.log(computerCellTwo); // Testing
+                console.log(computerCellThree); // Testing
 
-        //         const computerCellThree = document.querySelector(`.computer-gameboard > div > div[data-x="${xCoordRandom}"][data-y="${yCoordRandom + 3}"]`);
-        //         computerCellThree.classList.add('computer-ship-placed'); 
-        //         computerCellThree.setAttribute('style', 'background-color: green;'); // Testing
-        //     }
-        //     else if (axisRandom === 0)
-        //     {
-        //         const computerCell = document.querySelector(`.computer-gameboard > div > div[data-x="${xCoordRandom}"][data-y="${yCoordRandom}"]`); 
-        //         computerCell.classList.add('computer-ship-placed');
-        //         computerCell.setAttribute('style', 'background-color: green;');
+                if ((xCoordRandom + 3) >= 10 || (yCoordRandom + 3) >= 10)
+                {
+                    console.log("Coordinates are off the board."); // Testing
+                    console.log("X: ", xCoordRandom + 3); // Testing
+                    console.log("Y: ", yCoordRandom + 3); // Testing
+                    console.log('\n'); // Testing  
 
-        //         const computerCellOne = document.querySelector(`.computer-gameboard > div > div[data-x="${xCoordRandom + 1}"][data-y="${yCoordRandom}"]`);
-        //         computerCellOne.classList.add('computer-ship-placed');
-        //         computerCellOne.setAttribute('style', 'background-color: green;'); // Testing    
+                    xCoordRandom = Math.floor(Math.random() * computerRows.length); 
+                    yCoordRandom = Math.floor(Math.random() * 10); 
+                }
+                else if (computerCell.classList.contains('computer-ship-placed') || computerCellOne.classList.contains('computer-ship-placed') || 
+                        computerCellTwo.classList.contains('computer-ship-placed') || computerCellThree.classList.contains('computer-ship-placed'))
+                {
+                    console.log("There is an overlap."); // Testing
+                    xCoordRandom = Math.floor(Math.random() * computerRows.length); 
+                    yCoordRandom = Math.floor(Math.random() * 10); 
+                }
+                else
+                {
+                    console.log("Leaving..."); // Testing
+                    console.log("\n"); // Testing
+                    computerShipPlaced = true;
+                }
+                console.log("-----------------------------"); // Testing 
+            }
 
-        //         const computerCellTwo = document.querySelector(`.computer-gameboard > div > div[data-x="${xCoordRandom + 2}"][data-y="${yCoordRandom}"]`);
-        //         computerCellTwo.classList.add('computer-ship-placed'); 
-        //         computerCellTwo.setAttribute('style', 'background-color: green;'); // Testing 
+            const computerCell = document.querySelector(`.computer-gameboard > div > div[data-x="${xCoordRandom}"][data-y="${yCoordRandom}"]`); 
+            computerCell.classList.add('computer-ship-placed');
+            computerCell.setAttribute('style', 'background-color: orange;');
 
-        //         const computerCellThree = document.querySelector(`.computer-gameboard > div > div[data-x="${xCoordRandom + 3}"][data-y="${yCoordRandom}"]`);
-        //         computerCellThree.classList.add('computer-ship-placed'); 
-        //         computerCellThree.setAttribute('style', 'background-color: green;'); // Testing
-        //     }
-        // }
+            const computerCellOne = document.querySelector(`.computer-gameboard > div > div[data-x="${xCoordRandom + xLengthOne}"][data-y="${yCoordRandom + yLengthOne}"]`);
+            computerCellOne.classList.add('computer-ship-placed');
+            computerCellOne.setAttribute('style', 'background-color: orange;');
+
+            const computerCellTwo = document.querySelector(`.computer-gameboard > div > div[data-x="${xCoordRandom + xLengthTwo}"][data-y="${yCoordRandom + yLengthTwo}"]`);
+            computerCellTwo.classList.add('computer-ship-placed'); 
+            computerCellTwo.setAttribute('style', 'background-color: orange;');
+
+            const computerCellThree = document.querySelector(`.computer-gameboard > div > div[data-x="${xCoordRandom + xLengthThree}"][data-y="${yCoordRandom + yLengthThree}"]`);
+            computerCellThree.classList.add('computer-ship-placed');
+            computerCellThree.setAttribute('style', 'background-color: orange;'); 
+        }
     });
 }
 
@@ -688,6 +881,7 @@ function EnterX(e){
             else
             {
                 cell.classList.add('ship-placed'); 
+                PlacedShips[`ship ${ShipData.lengthIndex}`].coordinates = {0: [parseInt(cell.dataset.x), parseInt(cell.dataset.y)]};
                 ShipData.lengthIndex++; 
                 AxisChange.axisWasChanged = false;
                 PlaceShips(); 
@@ -698,12 +892,14 @@ function EnterX(e){
             if ((cell.classList.contains('ship-placed') && nextCellOne.classList.contains('ship-placed')) 
             || (cell.classList.contains('ship-placed') || nextCellOne.classList.contains('ship-placed')))
             {
-                console.log('Cell already contians a ship'); // Testing
+                console.log('Cell already contains a ship'); // Testing
             }
             else
             {
                 cell.classList.add('ship-placed');
                 nextCellOne.classList.add('ship-placed');
+                PlacedShips[`ship ${ShipData.lengthIndex}`].coordinates = {0: [parseInt(cell.dataset.x), parseInt(cell.dataset.y)], 
+                                                                           1: [parseInt(nextCellOne.dataset.x), parseInt(nextCellOne.dataset.y)]};
                 ShipData.lengthIndex++;
                 AxisChange.axisWasChanged = false;
                 PlaceShips(); 
@@ -721,6 +917,9 @@ function EnterX(e){
                 cell.classList.add('ship-placed');
                 nextCellOne.classList.add('ship-placed');
                 nextCellTwo.classList.add('ship-placed');
+                PlacedShips[`ship ${ShipData.lengthIndex}`].coordinates = {0: [parseInt(cell.dataset.x), parseInt(cell.dataset.y)],
+                                                                           1: [parseInt(nextCellOne.dataset.x), parseInt(nextCellOne.dataset.y)],
+                                                                           2: [parseInt(nextCellTwo.dataset.x), parseInt(nextCellTwo.dataset.y)]};
                 ShipData.lengthIndex++;
                 AxisChange.axisWasChanged = false;
                 PlaceShips(); 
@@ -739,6 +938,10 @@ function EnterX(e){
                 nextCellOne.classList.add('ship-placed');
                 nextCellTwo.classList.add('ship-placed');
                 nextCellThree.classList.add('ship-placed');
+                PlacedShips[`ship ${ShipData.lengthIndex}`].coordinates = {0: [parseInt(cell.dataset.x), parseInt(cell.dataset.y)],
+                                                                           1: [parseInt(nextCellOne.dataset.x), parseInt(nextCellOne.dataset.y)],
+                                                                           2: [parseInt(nextCellTwo.dataset.x), parseInt(nextCellTwo.dataset.y)],
+                                                                           3: [parseInt(nextCellThree.dataset.x), parseInt(nextCellThree.dataset.y)]};
                 ShipData.lengthIndex++; 
                 AxisChange.axisWasChanged = false; 
                 PlaceShips(); 
@@ -862,6 +1065,7 @@ function EnterY(e){
             else
             {
                 cell.classList.add('ship-placed'); 
+                PlacedShips[`ship ${ShipData.lengthIndex}`].coordinates = {0: [parseInt(cell.dataset.x), parseInt(cell.dataset.y)]};
                 ShipData.lengthIndex++; 
                 AxisChange.axisWasChanged = false;
                 PlaceShips(); 
@@ -878,6 +1082,8 @@ function EnterY(e){
             {
                 cell.classList.add('ship-placed');
                 nextCellOne.classList.add('ship-placed'); 
+                PlacedShips[`ship ${ShipData.lengthIndex}`].coordinates = {0: [parseInt(cell.dataset.x), parseInt(cell.dataset.y)],
+                                                                           1: [parseInt(nextCellOne.dataset.x), parseInt(nextCellOne.dataset.y)]};
                 ShipData.lengthIndex++;
                 AxisChange.axisWasChanged = false;
                 PlaceShips(); 
@@ -894,7 +1100,10 @@ function EnterY(e){
             {
                 cell.classList.add('ship-placed'); 
                 nextCellOne.classList.add('ship-placed');
-                nextCellTwo.classList.add('ship-placed'); 
+                nextCellTwo.classList.add('ship-placed');
+                PlacedShips[`ship ${ShipData.lengthIndex}`].coordinates = {0: [parseInt(cell.dataset.x), parseInt(cell.dataset.y)],
+                                                                           1: [parseInt(nextCellOne.dataset.x), parseInt(nextCellOne.dataset.y)],
+                                                                           2: [parseInt(nextCellTwo.dataset.x), parseInt(nextCellTwo.dataset.y)]};
                 ShipData.lengthIndex++;
                 AxisChange.axisWasChanged = false; 
                 PlaceShips();
@@ -913,6 +1122,10 @@ function EnterY(e){
                 nextCellOne.classList.add('ship-placed');
                 nextCellTwo.classList.add('ship-placed');
                 nextCellThree.classList.add('ship-placed');
+                PlacedShips[`ship ${ShipData.lengthIndex}`].coordinates = {0: [parseInt(cell.dataset.x), parseInt(cell.dataset.y)],
+                                                                           1: [parseInt(nextCellOne.dataset.x), parseInt(nextCellOne.dataset.y)],
+                                                                           2: [parseInt(nextCellTwo.dataset.x), parseInt(nextCellTwo.dataset.y)],
+                                                                           3: [parseInt(nextCellThree.dataset.x), parseInt(nextCellThree.dataset.y)]};
                 ShipData.lengthIndex++;
                 AxisChange.axisWasChanged = false;
                 PlaceShips(); 

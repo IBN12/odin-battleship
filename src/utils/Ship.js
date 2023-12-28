@@ -1,8 +1,8 @@
 // Ship(): Ship factory function. 
 export const Ship = () => {
     let defaultLengths = [0, 0, 0, 0, 1, 1, 1, 2, 2, 3]; 
-    let length = 0;
-    let hits = 0;
+    let length = null;
+    let hits = null;
     let sunk = false;
 
     // hit(): Will gather the amount of hits the ship will get.
@@ -15,5 +15,5 @@ export const Ship = () => {
         return sunk = true;
     }
 
-    return {hit, isSunk, defaultLengths, length};
+    return {hit, isSunk, defaultLengths, length,};
 }

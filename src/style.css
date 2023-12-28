@@ -85,7 +85,7 @@
 
 /* computer-ship-placed - Displays each ship that the computer places on their board. */
 .computer-ship-placed{
-    border: 1px solid black !important;
+    border: 1px solid lightgreen !important;
 }
 
 
