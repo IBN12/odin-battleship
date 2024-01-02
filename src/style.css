@@ -47,13 +47,23 @@
     /* padding: 5px; */
 }
 .player-one-board > div > div{ /* cells */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
     border: 1px solid lightcoral;
     padding: 5px;
     width: 30px;
     height: 30px;
 }
+.player-one-board > div > div > div{ /* Missed Hit Container */
+    /* border: 1px solid black; */
+    height: 20px;
+    font-size: 20px;
+    color: #d946ef;
+}
 
-/* Player Two Board */
+/* Computer Gameboard */
 .computer-gameboard{
     display: flex;
     flex-direction: column;
@@ -61,7 +71,7 @@
     border: 1px solid purple;
     padding: 10px;
 }
-.computer-gameboard > div{
+.computer-gameboard > div{ /* Rows */
     display: flex;
 
     /* padding: 10px; */
@@ -86,6 +96,12 @@
 /* computer-ship-placed - Displays each ship that the computer places on their board. */
 .computer-ship-placed{
     border: 1px solid lightgreen !important;
+}
+
+/* player-one-ship-hit - Indicates that the player one ship has been hit. */
+.player-one-ship-hit > img[src]{
+    width: 100%;
+    height: 100%;
 }
 
 
