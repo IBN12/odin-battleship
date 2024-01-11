@@ -24,13 +24,19 @@ shipFour.length = 4;
 shipFour.hits = 1;
 shipFour.hits += 1;
 shipFour.hits += 1;
-shipFour.hits += 1; 
+shipFour.hits += 1;
 
-// Testing if the 'hits' property in the 'Ship' Factory Function will
-// increment correctly when the 'hit' function is called. 
-test('Test hit function', () =>{
-    expect(shipOne.hit(shipOne.hits, shipOne.length)).toBeTruthy(); 
-    expect(shipTwo.hit(shipTwo.hits, shipTwo.length)).toBeTruthy(); 
-    expect(shipThree.hit(shipThree.hits, shipThree.length)).toBeTruthy();  
-    expect(shipFour.hit(shipFour.hits, shipFour.length)).toBeTruthy(); 
+describe('Test the ship factory functions and properties', () => {
+    // Testing if the 'hits' property in the 'Ship' Factory Function will
+    // increment correctly when the 'hit' function is called. 
+    test('Test hit function', () =>{
+        expect(shipOne.hit(shipOne.hits, shipOne.length)).toBeTruthy(); 
+        expect(shipTwo.hit(shipTwo.hits, shipTwo.length)).toBeTruthy(); 
+        expect(shipThree.hit(shipThree.hits, shipThree.length)).toBeTruthy();  
+        expect(shipFour.hit(shipFour.hits, shipFour.length)).toBeTruthy(); 
+    });
 });
+
+
+
+

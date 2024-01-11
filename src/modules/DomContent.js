@@ -1,43 +1,14 @@
 import { Gameboard } from "../utils/Gameboard";
+
+import { NewGameSelected } from "../utils/NewGame";
+import { ShipData } from "../utils/ShipData";
+import { AxisChange } from "../utils/AxisChange";
+import { ActivateGame } from "../utils/ActivateGame";
+import { DisablePlacement } from "../utils/DisablePlacement";
+import { PlacedShips, ComputerPlacedShips } from "../utils/ShipPlacementData";
+
 import waterExplosion from "../sounds/water-explosion.wav"; 
 import explosionImage from "../images/explosion.png"; 
-
-// AxisSelected(): Will operate the axis the change by boolean.
-const AxisSelected = (() => {
-    let axisSelected = false;
-
-    return {axisSelected};
-})();
-
-// NewGameSelected(): Toggles true if the new game button was clicked.
-const NewGameSelected = (() => {
-    let newGameSelected = false;
-
-    return {newGameSelected}; 
-})();
-
-// ShipData Literl Object: Will contain ship data to control the flow of ships on the gameboard. 
-let ShipData = {
-    lengthIndex: 0,
-    shipsPlaced: 0,
-    shipLength: 0,
-}
-
-let PlacedShips = {
-}
-
-// AxisChange Literal Object: 
-let AxisChange = {
-    axisChange: null, 
-    axisWasChanged: false,
-}
-
-// activateGame Literal Object:
-let ActivateGame = {
-    activateGame: false, 
-    activatePlayerOneTurn: true,
-    activateComputerTurn: false,
-}
 
 // InitializingDOM(): Intializing DOM Content for the entire application. 
 export function InitializeDOM(){
@@ -48,10 +19,74 @@ export function InitializeDOM(){
     InterfaceDOM();
     PlayerOneDOM();
     ComputerDOM();
-    ComputerPlaceShips();
-    // GameInitiated();
-    // AxisDOM();
+    DisplayPlayerOneGameboardEvents();
+    DisplayComputerGameboardEvents();
 }
+
+// DisplayPlayerOneGameboardEvents(): Will display all the events that player one initiates on the computers gameboard.
+function DisplayPlayerOneGameboardEvents(boardStatus, coords, sunkStatus){
+    const shipSunkMssg = document.createElement('p');
+    if (boardStatus === 1)
+    {
+        shipSunkMssg.textContent = "";
+        document.getElementById('player-gameboard-events').textContent = `You hit a ship at the coordinates [${coords.dataset.x}, ${coords.dataset.y}]!`;
+    }
+    else if (boardStatus === 0)
+    {
+        shipSunkMssg.textContent = ""; 
+        document.getElementById('player-gameboard-events').textContent = `Your hit missed at the coordinates [${coords.dataset.x}, ${coords.dataset.y}]!`;
+    }
+    else if (boardStatus === 2)
+    {
+        shipSunkMssg.textContent = "";
+        document.getElementById('player-gameboard-events').textContent = 'Player One Wins Battleship!'; 
+    }
+    else if (boardStatus === 3)
+    {
+        shipSunkMssg.textContent = "";
+        document.getElementById('player-gameboard-events').textContent = 'Player One Loses Battleship!'; 
+    }
+
+    if (sunkStatus)
+    {
+        document.getElementById('player-gameboard-events').appendChild(shipSunkMssg);
+        shipSunkMssg.textContent = ` You sunk the ship!`;
+    }
+}
+
+// DisplayComputerGameboardEvents(): Will display all the events that the computer initiates on player one's gameboard. 
+export function DisplayComputerGameboardEvents(boardStatus, sunkStatus, shipNum){
+    const shipSunkMssg = document.createElement('p');
+
+    if (boardStatus === 1)
+    {
+        shipSunkMssg.textContent = ""; 
+        document.getElementById('computer-gameboard-events').textContent = `The computer hit ship ${shipNum}!`;
+    }
+    else if (boardStatus === 0)
+    {
+        shipSunkMssg.textContent = "";
+        document.getElementById('computer-gameboard-events').textContent = 'The computer missed!'; 
+    }
+    else if (boardStatus === 2)
+    {
+        shipSunkMssg.textContent = "";
+        document.getElementById('computer-gameboard-events').textContent = 'The Computer Wins Battleship!'; 
+    }
+    else if (boardStatus === 3)
+    {
+        shipSunkMssg.textContent = "";
+        document.getElementById('computer-gameboard-events').textContent = 'The Computer Loses Battleship!'; 
+    }
+
+    if (sunkStatus)
+    {
+        document.getElementById('computer-gameboard-events').appendChild(shipSunkMssg);
+        shipSunkMssg.textContent = " The computer sunk the ship!";
+    }
+
+}
+
 // NumberOfShipsPlaced(): Will keep track of the current ship to be placed on the gameboard.
 function NumberOfShipsPlaced(){
     const numberOfShipsPlaced = document.querySelector('.number-of-ships');
@@ -155,28 +190,6 @@ function PlaceShips(e){
         console.log('\n'); // Testing
     }
 
-    // for (let i = 0; i < cells.length; i++)
-    // {
-    //     if (AxisChange.axisChange === null)
-    //     {
-    //         cells[i].addEventListener('mouseenter', EnterX);
-    //         cells[i].addEventListener('mouseleave', LeaveX);
-    //     }
-    //     else if (AxisChange.axisChange === 1)
-    //     {
-    //         cells[i].removeEventListener('mouseenter', EnterY);
-    //         cells[i].removeEventListener('mouseleave', LeaveY);
-    //         cells[i].addEventListener('mouseenter', EnterX);
-    //         cells[i].addEventListener('mouseleave', LeaveX);
-    //     }
-    //     else if (AxisChange.axisChange === 2)
-    //     {
-    //         cells[i].removeEventListener('mouseenter', EnterX);
-    //         cells[i].removeEventListener('mouseleave', LeaveX);
-    //         cells[i].addEventListener('mouseenter', EnterY);
-    //         cells[i].addEventListener('mouseleave', LeaveY); 
-    //     }
-    // }
 
     if (ShipData.lengthIndex > 9) // Will deactivate player ones ship placement. 
     {
@@ -186,9 +199,13 @@ function PlaceShips(e){
             cells[i].removeEventListener('mouseleave', LeaveX); 
             cells[i].removeEventListener('mouseenter', EnterY);
             cells[i].removeEventListener('mouseleave', LeaveY);
+            cells[i].removeEventListener('click', PlaceOnX); 
+            cells[i].removeEventListener('click', PlaceOnY); 
         }
 
-        // TODO: Activate the computer gameboard to begin the game. 
+        xCoord.classList.remove('current-coordinate');
+        yCoord.classList.remove('current-coordinate');
+
         ActivateGame.activateGame = true; 
         console.log("Game Activated: ", ActivateGame.activateGame); // Testing
         GameInitiated(); 
@@ -223,7 +240,56 @@ function PlaceShips(e){
 // GameInitiated(): The player and computer will take turns picking coordinates on each others gameboard to sink a ship.
 function GameInitiated(){
     const computerCells = document.querySelectorAll(`.computer-gameboard > div > div`);
-    const playerCells = document.querySelectorAll(`.player-one-gameboard > div > div`); 
+    let totalComputerShipsSunk = 0; 
+    let totalPlayerShipsSunk = 0; 
+    
+    // Check if all the computer placed ships have been sunk: Player One Wins. 
+    // Note: These two test can be in its own function. 
+    for (let key in ComputerPlacedShips)
+    {
+        if (ComputerPlacedShips[key].sunk === true)
+        {
+            totalComputerShipsSunk++;
+        }
+    }
+
+    // Check if all the player placed ships have been sunk: Computer wins
+    for (let key in PlacedShips)
+    {
+        if (PlacedShips[key].sunk === true)
+        {
+            totalPlayerShipsSunk++;   
+        }
+    }
+
+    // Crown the winner. 
+    if (totalComputerShipsSunk === ShipData.shipsPlaced)
+    {
+        console.log('Player One Wins Battleship!'); // Testing  
+        // Notes: End the Click Event for PlayerOneTurn.
+        // set ActivateGame.activateGame = false
+        // set ActivateGame.activatePlayerOneTurn = true
+        ActivateGame.activateGame = false; 
+        ActivateGame.activatePlayerOneTurn = true;
+        NewGameSelected.newGameSelected = false; 
+
+        computerCells.forEach((cell) => {
+            cell.removeEventListener('click', PlayerOneTurn); 
+        });
+
+        DisplayPlayerOneGameboardEvents(2, null, false); 
+        DisplayComputerGameboardEvents(3, false, null);  
+    }
+    else if (totalPlayerShipsSunk === ShipData.shipsPlaced)
+    {
+        console.log('Computer Wins Battleship!'); // Testing
+        ActivateGame.activateGame = false;
+        ActivateGame.activatePlayerOneTurn = true;
+        NewGameSelected.newGameSelected = false; 
+
+        DisplayComputerGameboardEvents(2, false, null);
+        DisplayPlayerOneGameboardEvents(3, null, false);
+    }
 
     if (ActivateGame.activateGame)
     {
@@ -234,9 +300,11 @@ function GameInitiated(){
 
     if (!ActivateGame.activatePlayerOneTurn)
     {
+        // Remove the events for all cells on the computer gameboard.
         computerCells.forEach((cell) => {
             cell.removeEventListener('click', PlayerOneTurn); 
         });
+
         console.log("Player One Turn Over"); // Testing 
         console.log("\n"); // Testing
         
@@ -247,68 +315,67 @@ function GameInitiated(){
 // PlayerOneTurn(): Player one will choose a spot on the board. 
 function PlayerOneTurn(e){
     const computerCell = document.querySelector(`.computer-gameboard > div > div[data-x="${e.target.dataset.x}"][data-y="${e.target.dataset.y}"]`); 
+    const explosion = new Audio(waterExplosion); 
+    let computerShipIndex = 0;
+    let shipNumberSunk = 0; 
+    let shipSunk = false; 
     console.log(e.target); // Testing 
     console.log(computerCell); // Testing 
     console.log("X: ", e.target.dataset.x); // Testing 
     console.log("Y: ", e.target.dataset.y); // Testing
 
-    ActivateGame.activatePlayerOneTurn = false;
-    ActivateGame.activateComputerTurn = true;
+    if (e.target.dataset.x !== undefined && e.target.dataset.y !== undefined)
+    {
+        if (computerCell.classList.contains('computer-ship-placed'))
+        {
+            for (let key in ComputerPlacedShips)
+            {
+                computerShipIndex++; 
+                for (let coord in ComputerPlacedShips[key].coordinates)
+                {
+                    if (ComputerPlacedShips[key].coordinates[coord][0] === parseInt(e.target.dataset.x) && ComputerPlacedShips[key].coordinates[coord][1] === parseInt(e.target.dataset.y))
+                    {
+                        ComputerPlacedShips[key].hits += 1;
+                        console.log(ComputerPlacedShips[key]); 
+                        
+                        if (ComputerPlacedShips[key].hits === ComputerPlacedShips[key].length)
+                        {
+                            console.log(`You sunk computer ship ${computerShipIndex}`); // Testing 
+                            ComputerPlacedShips[key].sunk = true;
+                            shipSunk = ComputerPlacedShips[key].sunk;
+                            shipNumberSunk = computerShipIndex;
+                        }
+                    }
+                }
+            }
 
+            const explosionImg = document.createElement('img'); 
+            explosionImg.src = explosionImage; 
+            computerCell.appendChild(explosionImg); 
+            computerCell.classList.add('computer-ship-hit'); 
+    
+            explosion.play(); 
+
+            DisplayPlayerOneGameboardEvents(1, computerCell, shipSunk, shipNumberSunk); 
+        }
+        else if (!computerCell.hasAttribute('style'))
+        {
+            computerCell.setAttribute('style', 'background-color:#bef264;');
+            DisplayPlayerOneGameboardEvents(0, computerCell, shipSunk, null); 
+        }
+    }
+
+    ActivateGame.activatePlayerOneTurn = false;
     GameInitiated(); 
 }
 
 // ComputerTurn(): Computer will choose a spont on player one's board.
 function ComputerTurn(){
-    // const explosion = new Audio(waterExplosion); // Testing 
-    // let xCoordRandom = Math.floor(Math.random() * 10);
-    // let yCoordRandom = Math.floor(Math.random() * 10); 
-    // let playerOneCell = document.querySelector(`[data-x="${xCoordRandom}"][data-y="${yCoordRandom}"]`);
-    // console.log('Computer choose: ', playerOneCell); // Testing 
-    // console.log("\n"); // Testing 
-
     const gameboard = Gameboard(); 
     gameboard.receiveAttack(PlacedShips);
 
-    // Test if the computer has already choosen these coordinates. 
-    // while(playerOneCell.classList.contains('player-one-ship-hit') || playerOneCell.classList.contains('computer-hit-missed'))
-    // {
-    //     xCoordRandom = Math.floor(Math.random() * 10);
-    //     yCoordRandom = Math.floor(Math.random() * 10);
-    //     playerOneCell = document.querySelector(`[data-x="${xCoordRandom}"][data-y="${yCoordRandom}"]`); 
-    // }
-
-    // Test if the coordinates contains an enemy ship. 
-    // if (playerOneCell.classList.contains('ship-placed'))
-    // {
-    //     for (let key in PlacedShips)
-    //     {
-    //         for (let coord in PlacedShips[key].coordinates)
-    //         {
-    //             if (PlacedShips[key].coordinates[coord][0] === xCoordRandom && PlacedShips[key].coordinates[coord][1] === yCoordRandom)
-    //             {
-    //                 console.log('The Computer Got A Hit! ', [xCoordRandom, yCoordRandom]); // Testing s
-    //                 console.log(`${key} was hit`); // Testing 
-    //                 const explosionImg = document.createElement('img');
-    //                 explosionImg.src = explosionImage;
-    //                 document.querySelector(`[data-x="${xCoordRandom}"][data-y="${yCoordRandom}"]`).appendChild(explosionImg);
-    //                 document.querySelector(`[data-x="${xCoordRandom}"][data-y="${yCoordRandom}"]`).classList.add('player-one-ship-hit'); 
-
-    //                 explosion.play(); // Testing 
-    //             }
-    //         }
-    //     }
-    // }
-    // else
-    // {
-    //     const computerHitMissed = document.createElement('div');
-    //     computerHitMissed.textContent = "M"; 
-    //     playerOneCell.classList.add('computer-hit-missed'); 
-    //     playerOneCell.appendChild(computerHitMissed); 
-    // }
-
-    ActivateGame.activateComputerTurn = false;
     ActivateGame.activatePlayerOneTurn = true; 
+
     GameInitiated(); 
 }
 
@@ -323,7 +390,8 @@ function ComputerPlaceShips(){
     const computerBoard = Gameboard();
     const computerShips = computerBoard.Ship();
 
-    computerShips.defaultLengths.forEach((ship) => {
+
+    computerShips.defaultLengths.forEach((ship, index) => {
         let computerShipPlaced = false;
         let xCoordRandom = Math.floor(Math.random() * (computerRows.length)); // Returns a random number from 0 to 9.
         let yCoordRandom = Math.floor(Math.random() * 10); 
@@ -385,6 +453,8 @@ function ComputerPlaceShips(){
             const computerCell = document.querySelector(`.computer-gameboard > div > div[data-x="${xCoordRandom}"][data-y="${yCoordRandom}"]`);
             computerCell.classList.add('computer-ship-placed'); 
             computerCell.setAttribute('style', 'background-color: purple;');
+            ComputerPlacedShips[`ship ${index}`] = {coordinates: {0: [xCoordRandom, yCoordRandom]}, length: ship + 1, hits: 0, sunk: false};
+            console.log("Computer Placed Ships: ", ComputerPlacedShips); // Testing 
         }
         else if (ship === 1)
         {
@@ -471,6 +541,12 @@ function ComputerPlaceShips(){
             const computerCellOne = document.querySelector(`.computer-gameboard > div > div[data-x="${xCoordRandom + xLengthOne}"][data-y="${yCoordRandom + yLengthOne}"]`);
             computerCellOne.classList.add('computer-ship-placed'); 
             computerCellOne.setAttribute('style', 'background-color: red;'); // Testing 
+
+            ComputerPlacedShips[`ship ${index}`] = {coordinates: {0: [xCoordRandom, yCoordRandom], 1: [xCoordRandom + xLengthOne, yCoordRandom + yLengthOne]},
+                                                    length: ship + 1,
+                                                    hits: 0,
+                                                    sunk: false};
+            console.log('Computer Placed Ships: ', ComputerPlacedShips); // Testing 
         }
         else if (ship === 2)
         {
@@ -570,6 +646,12 @@ function ComputerPlaceShips(){
             const computerCellTwo = document.querySelector(`.computer-gameboard > div > div[data-x="${xCoordRandom + xLengthTwo}"][data-y="${yCoordRandom + yLengthTwo}"]`);
             computerCellTwo.classList.add('computer-ship-placed'); 
             computerCellTwo.setAttribute('style', 'background-color: green;'); 
+            ComputerPlacedShips[`ship ${index}`] = {coordinates: {0: [xCoordRandom, yCoordRandom], 1: [xCoordRandom + xLengthOne, yCoordRandom + yLengthOne],
+                                                                  2: [xCoordRandom + xLengthTwo, yCoordRandom + yLengthTwo]},
+                                                    length: ship + 1,
+                                                    hits: 0, 
+                                                    sunk: false};
+            console.log('Computer Placed Ships: ', ComputerPlacedShips); // Testing 
         }
         else if (ship === 3)
         {
@@ -678,6 +760,13 @@ function ComputerPlaceShips(){
             const computerCellThree = document.querySelector(`.computer-gameboard > div > div[data-x="${xCoordRandom + xLengthThree}"][data-y="${yCoordRandom + yLengthThree}"]`);
             computerCellThree.classList.add('computer-ship-placed');
             computerCellThree.setAttribute('style', 'background-color: orange;'); 
+            ComputerPlacedShips[`ship ${index}`] = {coordinates: {0: [xCoordRandom, yCoordRandom], 1: [xCoordRandom + xLengthOne, yCoordRandom + yLengthOne],
+                                                                  2: [xCoordRandom + xLengthTwo, yCoordRandom + yLengthTwo],
+                                                                  3: [xCoordRandom + xLengthThree, yCoordRandom + yLengthThree]},
+                                                    length: ship + 1,
+                                                    hits: 0,
+                                                    sunk: false};
+            console.log('Computer Placed Ships: ', ComputerPlacedShips); // Testing 
         }
     });
 }
@@ -685,16 +774,12 @@ function ComputerPlaceShips(){
 // IntefaceDOM(): Interface section for the user. 
 function InterfaceDOM(){
     const gameboardContainer = document.querySelector('.gameboard-container');
-    const cells = document.querySelectorAll('.player-one-board > div > div');
 
     const playerInterface = document.createElement('div');
     playerInterface.classList.add('interface');
 
     const newGame = document.createElement('button');
     newGame.textContent = 'New Game';
-
-    const placeShip = document.createElement('button'); 
-    placeShip.textContent = `Place Ship`;
 
     const coordinateContainer = document.createElement('div');
     const xCoord = document.createElement('button');
@@ -708,155 +793,108 @@ function InterfaceDOM(){
     numberOfShipsPlaced.classList.add('number-of-ships'); 
 
     playerInterface.appendChild(newGame);
-    playerInterface.appendChild(placeShip);
     playerInterface.appendChild(coordinateContainer); 
     playerInterface.appendChild(numberOfShipsPlaced); 
     gameboardContainer.appendChild(playerInterface);
 
     newGame.addEventListener('click', NewGame);
 
-    // placeShip.addEventListener('click', e => {
-    //     ShipData.placementCommenced = true;  
-    //     NumberOfShipsPlaced(); 
-    //     PlaceShips(e);
-    // });
-
-    xCoord.addEventListener('click', (e) => {
-        if (NewGameSelected.newGameSelected)
-        {
-            AxisChange.axisWasChanged = true; 
-            AxisChange.axisChange = 1; 
-            yCoord.classList.remove('current-coordinate'); 
-            xCoord.classList.add('current-coordinate'); 
-            PlaceShips(e);
-        }
-    });
-
-    yCoord.addEventListener('click', (e) => {
-        if (NewGameSelected.newGameSelected)
-        {
-            AxisChange.axisWasChanged = true; 
-            AxisChange.axisChange = 2; 
-            xCoord.classList.remove('current-coordinate');
-            yCoord.classList.add('current-coordinate');
-            PlaceShips(e);
-        }
-    });
-
     // xCoord.addEventListener('click', ChangeToXAxis);
+    // yCoord.addEventListener('click', ChangeToYAxis); 
+}
 
-    // yCoord.addEventListener('click', ChangeToYAxis);
+// ChangeToXAxis(): Will allow the player to place ships along the x-axis.
+function ChangeToXAxis(e){
+    const xCoord = document.querySelector('.interface > div > button:nth-child(1)');
+    console.log(xCoord); 
+    const yCoord = document.querySelector('.interface > div > button:nth-child(2)'); 
+    if (NewGameSelected.newGameSelected)
+    {
+        AxisChange.axisWasChanged = true;
+        AxisChange.axisChange = 1;
+        yCoord.classList.remove('current-coordinate');
+        xCoord.classList.add('current-coordinate');
+        PlaceShips(e);
+    }
+}
+
+// ChangeToYAxis(): Will allow the player to place ships along the y-axis. 
+function ChangeToYAxis(e){
+    const xCoord = document.querySelector('.interface > div > button:nth-child(1)');
+    const yCoord = document.querySelector('.interface > div > button:nth-child(2)'); 
+    if (NewGameSelected.newGameSelected)
+    {
+        AxisChange.axisWasChanged = true;
+        AxisChange.axisChange = 2;
+        xCoord.classList.remove('current-coordinate');
+        yCoord.classList.add('current-coordinate'); 
+        PlaceShips(e);
+    }
 }
 
 // NewGame(): Will begin a new game for the player. 
 function NewGame(){
+    const cells = document.querySelectorAll('.player-one-board > div > div'); 
+    const computerCells = document.querySelectorAll('.computer-gameboard > div > div'); 
+    const xCoord = document.querySelector('.interface > div > button:nth-child(1)');
+    const yCoord = document.querySelector('.interface > div > button:nth-child(2)'); 
+
     console.log('Player begins a new game.'); // Testing 
     console.log('\n'); // Testing 
 
     // TODO: Reset all the game attributes in this function when the
     // user wants to start a new game. 
 
+    // TODO: Reset all the cells on each gameboard. 
+
     NewGameSelected.newGameSelected = true; 
-    PlaceShips(); 
-}
 
-// HoverTestDOM(): The hover test on the board.
-function AxisDOM(e){
-    const cell = document.querySelectorAll('.player-one-board > div > div');
-    console.log('Cells: ', cell); // Testing
+    ActivateGame.activateGame = false;
+    ActivateGame.activatePlayerOneTurn = true; 
 
-    // const xCoord = document.querySelector('.gameboard-container > div:nth-child(1) > div > button:nth-child(1)');
-    // console.log(xCoord); // Testing 
-    // const yCoord = document.querySelector('.gameboard-container > div:nth-child(1) > div > button:nth-child(2)'); 
-    // console.log(yCoord); // Testing
+    DisablePlacement.disablePlacement = false; 
 
-    // Testing for yCoord:
-    // for (let i = 0; i < cell.length; i++)
-    // {
-    //     cell[i].addEventListener('mouseenter', () => {
-    //         if (!(parseInt(cell[i].dataset.x) === 9))
-    //         {
-    //             cell[i].classList.add('hover-test');
-    //             cell[i + 10].classList.add('hover-test'); 
-    //         }
-    //     });
-    // }
+    ShipData.lengthIndex = 0;
+    ShipData.shipLength = 0;
+    ShipData.shipsPlaced = 0; 
 
-    // for (let i = 0; i < cell.length; i++)
-    // {
-    //     cell[i].addEventListener('mouseleave', () => {
-    //         if (cell[i].classList.contains('hover-test'))
-    //         {
-    //             cell[i].classList.remove('hover-test');
-    //             cell[i + 10].classList.remove('hover-test');
-    //         }
-    //     });
-    // }
+    AxisChange.axisChange = null;
+    AxisChange.axisWasChanged = false; 
 
-    // Testing for xCoord:
-    // for (let i = 0; i < cell.length; i++)
-    // {
-    //     if (!AxisChange.yAxisChange)
-    //     {
-    //         cell[i].addEventListener('mouseenter', () => {
-    //             if (!(parseInt(cell[i].dataset.x === 9)) && !(parseInt(cell[i].dataset.y) === 9))
-    //             {
-    //                 cell[i].classList.add('hover-test');
-    //                 cell[i + 1].classList.add('hover-test');
-    //             }
-    //         });
+    Object.assign(PlacedShips, {}); // assign empty objects to both of the placement objects. 
+    Object.assign(ComputerPlacedShips, {}); 
     
-    //         cell[i].addEventListener('click', () => {
-    //             console.log('X: ', cell[i].dataset.x); // Testing
-    //             console.log('Y: ', cell[i].dataset.y); // Testing
-    //             console.log('X2: ', cell[i + 1].dataset.x); // Testing
-    //             console.log('X3: ', cell[i + 1].dataset.y); // Testing 
-    //             console.log('\n'); // Testing
-    //         });
-
-    //         cell[i].addEventListener('mouseleave', () => {
-    //             if (cell[i].classList.contains('hover-test'))
-    //             {
-    //                 cell[i].classList.remove('hover-test');
-    //                 cell[i + 1].classList.remove('hover-test');    
-    //             }
-    //         });
-    //     }
-
-    // }
-
-    // for (let i = 0; i < cell.length; i++)
-    // {
-    //     cell[i].addEventListener('mouseleave', () => {
-    //         if (cell[i].classList.contains('hover-test'))
-    //         {
-    //             cell[i].classList.remove('hover-test');
-    //             cell[i + 1].classList.remove('hover-test');    
-    //         }
-    //     });
-    // }
-}
-
-// ChangeToXAxis(): Will change the axis selection of the gameboard to the x-axis.
-function ChangeToXAxis(){
-    const cells = document.querySelectorAll('.player-one-board > div > div');
-    const yCoord = document.querySelector('.gameboard-container > div:nth-child(1) > div > button:nth-child(2)');
-
-    AxisSelected.axisSelected = true; 
-    console.log('X or Y Axis has been selected: ', AxisSelected.axisSelected); // Testing
-
-    // Remove EnterY and LeaveY Event Listeners 
+    // Clean the computer gameboard. 
+    computerCells.forEach((computerCell) => {
+        computerCell.classList.remove('computer-ship-placed'); 
+        computerCell.classList.remove('computer-ship-hit');
+        computerCell.removeAttribute('style'); // Testing  
+        computerCell.replaceChildren(); 
+    }); 
+    
+    // Clean the player gameboard. 
     cells.forEach((cell) => {
-        cell.removeEventListener('mouseenter', EnterY);
-        cell.removeEventListener('mouseleave', LeaveY);
+        cell.classList.remove('ship-placed'); 
+        cell.classList.remove('hover-test'); 
+        cell.classList.remove('player-one-ship-hit');
+        cell.classList.remove('computer-hit-missed'); 
+        cell.removeEventListener('click', PlaceOnX); 
+        cell.removeEventListener('click', PlaceOnY);
+        cell.replaceChildren(); 
     });
 
-    for (let i = 0; i < cells.length; i++)
-    {
-        cells[i].addEventListener('mouseenter', EnterX);
+    // Clean the x and y axe buttons. 
+    // xCoord.classList.remove('current-coordinate'); 
+    // yCoord.classList.remove('current-coordinate');
+    xCoord.addEventListener('click', ChangeToXAxis);
+    yCoord.addEventListener('click', ChangeToYAxis); 
 
-        cells[i].addEventListener('mouseleave', LeaveX);
-    }
+    // Cleans the player and computer display events. 
+    document.getElementById('player-gameboard-events').textContent = "";
+    document.getElementById('computer-gameboard-events').textContent = "";  
+
+    ComputerPlaceShips(); 
+    PlaceShips(); 
 }
 
 // EnterX(): Will enter each cell on the x-axis selection. 
@@ -881,9 +919,12 @@ function EnterX(e){
         if (!(parseInt(e.target.dataset.y) === 9)) // Keeps all ship placements on the gameboard. 
         {
             cell.classList.add('hover-test');
-
-            const nextCellOne = document.querySelector(`[data-x="${e.target.dataset.x}"][data-y="${parseInt(e.target.dataset.y) + 1}"]`);
             nextCellOne.classList.add('hover-test'); 
+            DisablePlacement.disablePlacement = false; 
+        }
+        else
+        {
+            DisablePlacement.disablePlacement = true;
         }
     }
     else if (ShipData.shipLength === 2)
@@ -893,6 +934,11 @@ function EnterX(e){
             cell.classList.add('hover-test');
             nextCellOne.classList.add('hover-test'); 
             nextCellTwo.classList.add('hover-test');
+            DisablePlacement.disablePlacement = false; 
+        }
+        else 
+        {
+            DisablePlacement.disablePlacement = true; 
         }
     }
     else if (ShipData.shipLength === 3)
@@ -903,23 +949,130 @@ function EnterX(e){
             nextCellOne.classList.add('hover-test');
             nextCellTwo.classList.add('hover-test');
             nextCellThree.classList.add('hover-test');
+            DisablePlacement.disablePlacement = false;
+        }
+        else 
+        {
+            DisablePlacement.disablePlacement = true; 
         }
     }
 
     // Note: I could put this in its own function, but for now I will use the EnterX function to test
     // this alogorithm out. It would be a lot more effecient to place this in another function
-    // so you can remove click event. You should put them in the PlaceOnX() and PlaceOnY() functions. But
-    // for now you can use the ShipData.lengthIndex property in the if statement condition. 
-    cell.addEventListener('click', () => {
-        console.log('X: ', cell.dataset.x); 
-        console.log('Y: ', cell.dataset.y); 
-        // TODO: Ship placement on the board can be done inside this function. 
+    // so you can remove the click event. You should put them in the PlaceOnX() and PlaceOnY() functions. But
+    // for now you can use the ShipData.lengthIndex property in the if statement condition. Currently
+    // Using disablePlacement to stop the player from the placing a ship on the gameboard when they leave
+    // the board. 
 
+    cell.addEventListener('click', PlaceOnX);
+    // cell.addEventListener('click', () => {
+    //     if (!disablePlacement)
+    //     {
+    //         console.log('X: ', cell.dataset.x); 
+    //         console.log('Y: ', cell.dataset.y); 
+
+    //         if (ShipData.shipLength === 0 && ShipData.lengthIndex < 10) 
+    //         {
+    //             if (cell.classList.contains('ship-placed')) // Cant place the ship on this cell when there is one already on the cell. 
+    //             {
+    //                 console.log('Cell already contains a ship'); // Testing
+    //             }
+    //             else
+    //             {
+    //                 cell.classList.add('ship-placed'); 
+    //                 PlacedShips[`ship ${ShipData.lengthIndex}`].coordinates = {0: [parseInt(cell.dataset.x), parseInt(cell.dataset.y)]};
+    //                 ShipData.lengthIndex++; 
+    //                 AxisChange.axisWasChanged = false;
+    //                 PlaceShips(); 
+    //             }       
+    //         }
+    //         else if (ShipData.shipLength === 1 && ShipData.lengthIndex < 10)
+    //         {
+    //             if ((cell.classList.contains('ship-placed') && nextCellOne.classList.contains('ship-placed')) 
+    //             || (cell.classList.contains('ship-placed') || nextCellOne.classList.contains('ship-placed')))
+    //             {
+    //                 console.log('Cell already contains a ship'); // Testing
+    //             }
+    //             else
+    //             {
+    //                 cell.classList.add('ship-placed');
+    //                 nextCellOne.classList.add('ship-placed');
+    //                 PlacedShips[`ship ${ShipData.lengthIndex}`].coordinates = {0: [parseInt(cell.dataset.x), parseInt(cell.dataset.y)], 
+    //                                                                            1: [parseInt(nextCellOne.dataset.x), parseInt(nextCellOne.dataset.y)]};
+    //                 ShipData.lengthIndex++;
+    //                 AxisChange.axisWasChanged = false;
+    //                 PlaceShips(); 
+    //             }
+    //         }
+    //         else if (ShipData.shipLength === 2 && ShipData.lengthIndex < 10)
+    //         {
+    //             if ((cell.classList.contains('ship-placed') && nextCellOne.classList.contains('ship-placed') && nextCellTwo.classList.contains('ship-placed')) 
+    //             || (cell.classList.contains('ship-placed') || nextCellOne.classList.contains('ship-placed') || nextCellTwo.classList.contains('ship-placed')))
+    //             {
+    //                 console.log('Cell already contains a ship'); // Testing
+    //             }
+    //             else
+    //             {
+    //                 cell.classList.add('ship-placed');
+    //                 nextCellOne.classList.add('ship-placed');
+    //                 nextCellTwo.classList.add('ship-placed');
+    //                 PlacedShips[`ship ${ShipData.lengthIndex}`].coordinates = {0: [parseInt(cell.dataset.x), parseInt(cell.dataset.y)],
+    //                                                                            1: [parseInt(nextCellOne.dataset.x), parseInt(nextCellOne.dataset.y)],
+    //                                                                            2: [parseInt(nextCellTwo.dataset.x), parseInt(nextCellTwo.dataset.y)]};
+    //                 ShipData.lengthIndex++;
+    //                 AxisChange.axisWasChanged = false;
+    //                 PlaceShips(); 
+    //             }
+    //         }
+    //         else if (ShipData.shipLength === 3 && ShipData.lengthIndex < 10)
+    //         {
+    //             if ((cell.classList.contains('ship-placed') && nextCellOne.classList.contains('ship-placed') && nextCellTwo.classList.contains('ship-placed') && nextCellThree.classList.contains('ship-placed'))
+    //             || (cell.classList.contains('ship-placed') || nextCellOne.classList.contains('ship-placed') || nextCellTwo.classList.contains('ship-placed') || nextCellThree.classList.contains('ship-placed')))
+    //             {
+    //                 console.log('Cell already contains a ship'); // Testing
+    //             }
+    //             else
+    //             {
+    //                 cell.classList.add('ship-placed');
+    //                 nextCellOne.classList.add('ship-placed');
+    //                 nextCellTwo.classList.add('ship-placed');
+    //                 nextCellThree.classList.add('ship-placed');
+    //                 PlacedShips[`ship ${ShipData.lengthIndex}`].coordinates = {0: [parseInt(cell.dataset.x), parseInt(cell.dataset.y)],
+    //                                                                            1: [parseInt(nextCellOne.dataset.x), parseInt(nextCellOne.dataset.y)],
+    //                                                                            2: [parseInt(nextCellTwo.dataset.x), parseInt(nextCellTwo.dataset.y)],
+    //                                                                            3: [parseInt(nextCellThree.dataset.x), parseInt(nextCellThree.dataset.y)]};
+    //                 ShipData.lengthIndex++; 
+    //                 AxisChange.axisWasChanged = false; 
+    //                 PlaceShips(); 
+    //             }
+    //         }
+    //     }
+    // });
+}
+
+// PlaceOnX(): Will place a ship on the gameboards x-axis.
+function PlaceOnX(e){
+    const cells = document.querySelectorAll('.player-one-board > div > div');
+    cells.forEach((cell) => {
+        cell.classList.remove('hover-test'); 
+    }); 
+
+    if (!DisablePlacement.disablePlacement)
+    {
+        console.log('X: ', e.target.dataset.x); 
+        console.log('Y: ', e.target.dataset.y); 
+    
+        const cell = document.querySelector(`[data-x="${e.target.dataset.x}"][data-y="${e.target.dataset.y}"]`);
+        const nextCellOne = document.querySelector(`[data-x="${e.target.dataset.x}"][data-y="${parseInt(e.target.dataset.y) + 1}"]`);
+        const nextCellTwo = document.querySelector(`[data-x="${e.target.dataset.x}"][data-y="${parseInt(e.target.dataset.y) + 2}"]`);
+        const nextCellThree = document.querySelector(`[data-x="${e.target.dataset.x}"][data-y="${parseInt(e.target.dataset.y) + 3}"]`);
+    
         if (ShipData.shipLength === 0 && ShipData.lengthIndex < 10) 
         {
             if (cell.classList.contains('ship-placed')) // Cant place the ship on this cell when there is one already on the cell. 
             {
-                console.log('Cell already contains a ship'); // Testing
+                // console.log('Cell already contains a ship'); // Testing
+                return;
             }
             else
             {
@@ -935,7 +1088,8 @@ function EnterX(e){
             if ((cell.classList.contains('ship-placed') && nextCellOne.classList.contains('ship-placed')) 
             || (cell.classList.contains('ship-placed') || nextCellOne.classList.contains('ship-placed')))
             {
-                console.log('Cell already contains a ship'); // Testing
+                // console.log('Cell already contains a ship'); // Testing
+                return; 
             }
             else
             {
@@ -953,7 +1107,8 @@ function EnterX(e){
             if ((cell.classList.contains('ship-placed') && nextCellOne.classList.contains('ship-placed') && nextCellTwo.classList.contains('ship-placed')) 
             || (cell.classList.contains('ship-placed') || nextCellOne.classList.contains('ship-placed') || nextCellTwo.classList.contains('ship-placed')))
             {
-                console.log('Cell already contains a ship'); // Testing
+                // console.log('Cell already contains a ship'); // Testing
+                return;
             }
             else
             {
@@ -973,7 +1128,8 @@ function EnterX(e){
             if ((cell.classList.contains('ship-placed') && nextCellOne.classList.contains('ship-placed') && nextCellTwo.classList.contains('ship-placed') && nextCellThree.classList.contains('ship-placed'))
             || (cell.classList.contains('ship-placed') || nextCellOne.classList.contains('ship-placed') || nextCellTwo.classList.contains('ship-placed') || nextCellThree.classList.contains('ship-placed')))
             {
-                console.log('Cell already contains a ship'); // Testing
+                // console.log('Cell already contains a ship'); // Testing
+                return; 
             }
             else
             {
@@ -989,13 +1145,8 @@ function EnterX(e){
                 AxisChange.axisWasChanged = false; 
                 PlaceShips(); 
             }
-        }  
-    });
-}
-
-// PlaceOnX(): Will place a ship on the gameboards x-axis.
-function PlaceOnX(){
-    // Statements...
+        }
+    }
 } 
 
 // LeaveX(): Will leave each cell from the x-axis selection. 
@@ -1032,28 +1183,6 @@ function LeaveX(e){
     }
 }
 
-// ChangeToYAxis(): Will change the axis selection on the gameboard to the y-axis. 
-function ChangeToYAxis(){
-    const cells = document.querySelectorAll('.player-one-board > div > div'); 
-    const xCoord = document.querySelector('.gameboard-container > div:nth-child(1) > div > button:nth-child(1)');
-
-    AxisSelected.axisSelected = true;
-    console.log('X or Y axis has been selected: ', AxisSelected.axisSelected); // Testing 
-    
-    // Remove EnterX and LeaveX Event Listeners.
-    cells.forEach((cell) => {
-        cell.removeEventListener('mouseenter', EnterX); 
-        cell.removeEventListener('mouseleave', LeaveX); 
-    }); 
-
-    for (let i = 0; i < cells.length; i++)
-    {
-        cells[i].addEventListener('mouseenter', EnterY);
-
-        cells[i].addEventListener('mouseleave', LeaveY);
-    }
-}
-
 // EnterY(): Will enter each cell on the y-axis selection.
 function EnterY(e){
     console.log(e); // Testing 
@@ -1077,6 +1206,11 @@ function EnterY(e){
         {
             cell.classList.add('hover-test');
             nextCellOne.classList.add('hover-test');
+            DisablePlacement.disablePlacement = false;
+        }
+        else 
+        {
+            DisablePlacement.disablePlacement = true; 
         }
     }
     else if (ShipData.shipLength === 2)
@@ -1086,6 +1220,11 @@ function EnterY(e){
             cell.classList.add('hover-test');
             nextCellOne.classList.add('hover-test');
             nextCellTwo.classList.add('hover-test');
+            DisablePlacement.disablePlacement = false; 
+        }
+        else 
+        {
+            DisablePlacement.disablePlacement = true;
         }
     }
     else if (ShipData.shipLength === 3)
@@ -1096,19 +1235,123 @@ function EnterY(e){
             nextCellOne.classList.add('hover-test');
             nextCellTwo.classList.add('hover-test');
             nextCellThree.classList.add('hover-test');
+            DisablePlacement.disablePlacement = false;
+        }
+        else
+        {
+            DisablePlacement.disablePlacement = true;
         }
     }   
 
     // Places the ships on the board cells:
-    cell.addEventListener('click', () => {
-        console.log("X: ", cell.dataset.x); // Testing 
-        console.log("Y: ", cell.dataset.y); // Testing 
+    cell.addEventListener('click', PlaceOnY); 
+    // cell.addEventListener('click', () => {
+    //     if (!disablePlacement)
+    //     {
+    //         console.log("X: ", cell.dataset.x); // Testing 
+    //         console.log("Y: ", cell.dataset.y); // Testing   
+    //         if (ShipData.shipLength === 0 && ShipData.lengthIndex < 10)
+    //         {
+    //             if (cell.classList.contains('ship-placed'))
+    //             {
+    //                 console.log("Cell already contains a ship."); // Testing 
+    //             }
+    //             else
+    //             {
+    //                 cell.classList.add('ship-placed'); 
+    //                 PlacedShips[`ship ${ShipData.lengthIndex}`].coordinates = {0: [parseInt(cell.dataset.x), parseInt(cell.dataset.y)]};
+    //                 ShipData.lengthIndex++; 
+    //                 AxisChange.axisWasChanged = false;
+    //                 PlaceShips(); 
+    //             }
+    //         }
+    //         else if (ShipData.shipLength === 1 && ShipData.lengthIndex < 10)
+    //         {
+    //             if ((cell.classList.contains('ship-placed') && nextCellOne.classList.contains('ship-placed')) 
+    //             || (cell.classList.contains('ship-placed') || nextCellOne.classList.contains('ship-placed')))
+    //             {
+    //                 console.log("Cell already contains a ship."); // Testing 
+    //             }
+    //             else
+    //             {
+    //                 cell.classList.add('ship-placed');
+    //                 nextCellOne.classList.add('ship-placed'); 
+    //                 PlacedShips[`ship ${ShipData.lengthIndex}`].coordinates = {0: [parseInt(cell.dataset.x), parseInt(cell.dataset.y)],
+    //                                                                            1: [parseInt(nextCellOne.dataset.x), parseInt(nextCellOne.dataset.y)]};
+    //                 ShipData.lengthIndex++;
+    //                 AxisChange.axisWasChanged = false;
+    //                 PlaceShips(); 
+    //             }
+    //         }
+    //         else if (ShipData.shipLength === 2 && ShipData.lengthIndex < 10)
+    //         {
+    //             if ((cell.classList.contains('ship-placed') && nextCellOne.classList.contains('ship-placed') && nextCellTwo.classList.contains('ship-placed')) 
+    //             || (cell.classList.contains('ship-placed') || nextCellOne.classList.contains('ship-placed') || nextCellTwo.classList.contains('ship-placed')))
+    //             {
+    //                 console.log("Cell already contains a ship"); // Testing 
+    //             }
+    //             else
+    //             {
+    //                 cell.classList.add('ship-placed'); 
+    //                 nextCellOne.classList.add('ship-placed');
+    //                 nextCellTwo.classList.add('ship-placed');
+    //                 PlacedShips[`ship ${ShipData.lengthIndex}`].coordinates = {0: [parseInt(cell.dataset.x), parseInt(cell.dataset.y)],
+    //                                                                            1: [parseInt(nextCellOne.dataset.x), parseInt(nextCellOne.dataset.y)],
+    //                                                                            2: [parseInt(nextCellTwo.dataset.x), parseInt(nextCellTwo.dataset.y)]};
+    //                 ShipData.lengthIndex++;
+    //                 AxisChange.axisWasChanged = false; 
+    //                 PlaceShips();
+    //             }
+    //         }
+    //         else if (ShipData.shipLength === 3 && ShipData.lengthIndex < 10)
+    //         {
+    //             if ((cell.classList.contains('ship-placed') && nextCellOne.classList.contains('ship-placed') && nextCellTwo.classList.contains('ship-placed') && nextCellThree.classList.contains('ship-placed'))
+    //             || (cell.classList.contains('ship-placed') || nextCellOne.classList.contains('ship-placed') || nextCellThree.classList.contains('ship-placed') && nextCellThree.classList.contains('ship-placed')))
+    //             {
+    //                 console.log("Cell already contains a ship"); // Testing 
+    //             }
+    //             else 
+    //             {
+    //                 cell.classList.add('ship-placed'); 
+    //                 nextCellOne.classList.add('ship-placed');
+    //                 nextCellTwo.classList.add('ship-placed');
+    //                 nextCellThree.classList.add('ship-placed');
+    //                 PlacedShips[`ship ${ShipData.lengthIndex}`].coordinates = {0: [parseInt(cell.dataset.x), parseInt(cell.dataset.y)],
+    //                                                                            1: [parseInt(nextCellOne.dataset.x), parseInt(nextCellOne.dataset.y)],
+    //                                                                            2: [parseInt(nextCellTwo.dataset.x), parseInt(nextCellTwo.dataset.y)],
+    //                                                                            3: [parseInt(nextCellThree.dataset.x), parseInt(nextCellThree.dataset.y)]};
+    //                 ShipData.lengthIndex++;
+    //                 AxisChange.axisWasChanged = false;
+    //                 PlaceShips(); 
+    //             }
+    //         }            
+    //     }
+    // });
+}
+
+// PlaceOnY(): Will place a ship on the gameboards y-axis. 
+function PlaceOnY(e){
+    const cells = document.querySelectorAll('.player-one-board > div > div');
+    cells.forEach((cell) => {
+        cell.classList.remove('hover-test'); 
+    });
+
+    if (!DisablePlacement.disablePlacement)
+    {
+        console.log("X: ", e.target.dataset.x); // Testing 
+        console.log("Y: ", e.target.dataset.y); // Testing   
+
+        const cell = document.querySelector(`[data-x="${e.target.dataset.x}"][data-y="${e.target.dataset.y}"]`);
+        const nextCellOne = document.querySelector(`[data-x="${parseInt(e.target.dataset.x) + 1}"][data-y="${e.target.dataset.y}"]`); 
+        const nextCellTwo = document.querySelector(`[data-x="${parseInt(e.target.dataset.x) + 2}"][data-y="${e.target.dataset.y}"]`);
+        const nextCellThree = document.querySelector(`[data-x="${parseInt(e.target.dataset.x) + 3}"][data-y="${e.target.dataset.y}"]`);
 
         if (ShipData.shipLength === 0 && ShipData.lengthIndex < 10)
         {
             if (cell.classList.contains('ship-placed'))
             {
                 console.log("Cell already contains a ship."); // Testing 
+                return;
             }
             else
             {
@@ -1125,6 +1368,7 @@ function EnterY(e){
             || (cell.classList.contains('ship-placed') || nextCellOne.classList.contains('ship-placed')))
             {
                 console.log("Cell already contains a ship."); // Testing 
+                return;
             }
             else
             {
@@ -1143,6 +1387,7 @@ function EnterY(e){
             || (cell.classList.contains('ship-placed') || nextCellOne.classList.contains('ship-placed') || nextCellTwo.classList.contains('ship-placed')))
             {
                 console.log("Cell already contains a ship"); // Testing 
+                return;
             }
             else
             {
@@ -1163,6 +1408,7 @@ function EnterY(e){
             || (cell.classList.contains('ship-placed') || nextCellOne.classList.contains('ship-placed') || nextCellThree.classList.contains('ship-placed') && nextCellThree.classList.contains('ship-placed')))
             {
                 console.log("Cell already contains a ship"); // Testing 
+                return; 
             }
             else 
             {
@@ -1179,12 +1425,7 @@ function EnterY(e){
                 PlaceShips(); 
             }
         }
-    });
-}
-
-// PlaceOnY(): Will place a ship on the gameboards y-axis. 
-function PlaceOnY(){
-    // Statements...
+    }
 }
 
 // LeaveY(): Will leave each cell from the y-axis selection.
