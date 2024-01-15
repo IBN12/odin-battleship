@@ -94,7 +94,12 @@ function NumberOfShipsPlaced(){
     if (!((ShipData.lengthIndex + 1) > 10))
     {
         ShipData.shipsPlaced++;
-        numberOfShipsPlaced.textContent = `Ship: ${ShipData.shipsPlaced}`;
+        numberOfShipsPlaced.textContent = `Ships: ${ShipData.shipsPlaced}`;
+    }
+
+    if (ActivateGame.activateGame)
+    {
+        numberOfShipsPlaced.textContent = `Ships: ${ShipData.shipsPlaced}`; 
     }
 }
 
@@ -166,8 +171,8 @@ function PlaceShips(e){
     const cells = document.querySelectorAll('.player-one-board > div > div'); 
     const xCoord = document.querySelector('.gameboard-container > div:nth-child(1) > div > button:nth-child(1)');
     const yCoord = document.querySelector('.gameboard-container > div:nth-child(1) > div > button:nth-child(2)'); 
+    const commenceAttack = document.querySelector('.interface > div:nth-child(4)');
 
- 
     console.log('Current Axis: ', AxisChange.axisChange); // Testing  
     console.log('\n'); // Testing 
 
@@ -205,8 +210,12 @@ function PlaceShips(e){
 
         xCoord.classList.remove('current-coordinate');
         yCoord.classList.remove('current-coordinate');
+        xCoord.removeEventListener('click', ChangeToXAxis);
+        yCoord.removeEventListener('click', ChangeToYAxis);
 
         ActivateGame.activateGame = true; 
+        commenceAttack.classList.add('commence-attack'); 
+        commenceAttack.textContent = "Commence Attack!"; 
         console.log("Game Activated: ", ActivateGame.activateGame); // Testing
         GameInitiated(); 
     }
@@ -216,11 +225,14 @@ function PlaceShips(e){
         {
             if (AxisChange.axisChange === null)
             {
+                cells[i].removeEventListener('mouseenter', EnterY);
+                cells[i].removeEventListener('mouseleave', LeaveY); 
                 cells[i].addEventListener('mouseenter', EnterX);
                 cells[i].addEventListener('mouseleave', LeaveX);
             }
             else if (AxisChange.axisChange === 1)
             {
+                cells[i].removeEventListener('click', PlaceOnY);
                 cells[i].removeEventListener('mouseenter', EnterY);
                 cells[i].removeEventListener('mouseleave', LeaveY);
                 cells[i].addEventListener('mouseenter', EnterX);
@@ -228,6 +240,7 @@ function PlaceShips(e){
             }
             else if (AxisChange.axisChange === 2)
             {
+                cells[i].removeEventListener('click', PlaceOnX);
                 cells[i].removeEventListener('mouseenter', EnterX);
                 cells[i].removeEventListener('mouseleave', LeaveX);
                 cells[i].addEventListener('mouseenter', EnterY);
@@ -242,6 +255,8 @@ function GameInitiated(){
     const computerCells = document.querySelectorAll(`.computer-gameboard > div > div`);
     let totalComputerShipsSunk = 0; 
     let totalPlayerShipsSunk = 0; 
+
+    NumberOfShipsPlaced(); 
     
     // Check if all the computer placed ships have been sunk: Player One Wins. 
     // Note: These two test can be in its own function. 
@@ -263,7 +278,7 @@ function GameInitiated(){
     }
 
     // Crown the winner. 
-    if (totalComputerShipsSunk === ShipData.shipsPlaced)
+    if (totalComputerShipsSunk === 10)
     {
         console.log('Player One Wins Battleship!'); // Testing  
         // Notes: End the Click Event for PlayerOneTurn.
@@ -280,7 +295,7 @@ function GameInitiated(){
         DisplayPlayerOneGameboardEvents(2, null, false); 
         DisplayComputerGameboardEvents(3, false, null);  
     }
-    else if (totalPlayerShipsSunk === ShipData.shipsPlaced)
+    else if (totalPlayerShipsSunk === 10)
     {
         console.log('Computer Wins Battleship!'); // Testing
         ActivateGame.activateGame = false;
@@ -357,15 +372,21 @@ function PlayerOneTurn(e){
             explosion.play(); 
 
             DisplayPlayerOneGameboardEvents(1, computerCell, shipSunk, shipNumberSunk); 
+            ActivateGame.activatePlayerOneTurn = false;
         }
         else if (!computerCell.hasAttribute('style'))
         {
             computerCell.setAttribute('style', 'background-color:#bef264;');
             DisplayPlayerOneGameboardEvents(0, computerCell, shipSunk, null); 
+            ActivateGame.activatePlayerOneTurn = false;
+        }
+        else if (computerCell.classList.contains('computer-ship-hit') || computerCell.hasAttribute('style'))
+        {
+            return; 
         }
     }
 
-    ActivateGame.activatePlayerOneTurn = false;
+    // ActivateGame.activatePlayerOneTurn = false;
     GameInitiated(); 
 }
 
@@ -452,7 +473,7 @@ function ComputerPlaceShips(){
     
             const computerCell = document.querySelector(`.computer-gameboard > div > div[data-x="${xCoordRandom}"][data-y="${yCoordRandom}"]`);
             computerCell.classList.add('computer-ship-placed'); 
-            computerCell.setAttribute('style', 'background-color: purple;');
+            // computerCell.setAttribute('style', 'background-color: purple;');
             ComputerPlacedShips[`ship ${index}`] = {coordinates: {0: [xCoordRandom, yCoordRandom]}, length: ship + 1, hits: 0, sunk: false};
             console.log("Computer Placed Ships: ", ComputerPlacedShips); // Testing 
         }
@@ -536,11 +557,11 @@ function ComputerPlaceShips(){
 
             const computerCell = document.querySelector(`.computer-gameboard > div > div[data-x="${xCoordRandom}"][data-y="${yCoordRandom}"]`);
             computerCell.classList.add('computer-ship-placed');
-            computerCell.setAttribute('style', 'background-color: red;'); // Testing
+            // computerCell.setAttribute('style', 'background-color: red;'); // Testing
 
             const computerCellOne = document.querySelector(`.computer-gameboard > div > div[data-x="${xCoordRandom + xLengthOne}"][data-y="${yCoordRandom + yLengthOne}"]`);
             computerCellOne.classList.add('computer-ship-placed'); 
-            computerCellOne.setAttribute('style', 'background-color: red;'); // Testing 
+            // computerCellOne.setAttribute('style', 'background-color: red;'); // Testing 
 
             ComputerPlacedShips[`ship ${index}`] = {coordinates: {0: [xCoordRandom, yCoordRandom], 1: [xCoordRandom + xLengthOne, yCoordRandom + yLengthOne]},
                                                     length: ship + 1,
@@ -637,15 +658,15 @@ function ComputerPlaceShips(){
 
             const computerCell = document.querySelector(`.computer-gameboard > div > div[data-x="${xCoordRandom}"][data-y="${yCoordRandom}"]`);
             computerCell.classList.add('computer-ship-placed');
-            computerCell.setAttribute('style', 'background-color: green;'); 
+            // computerCell.setAttribute('style', 'background-color: green;'); 
 
             const computerCellOne = document.querySelector(`.computer-gameboard > div > div[data-x="${xCoordRandom + xLengthOne}"][data-y="${yCoordRandom + yLengthOne}"]`);
             computerCellOne.classList.add('computer-ship-placed');
-            computerCellOne.setAttribute('style', 'background-color: green;');
+            // computerCellOne.setAttribute('style', 'background-color: green;');
 
             const computerCellTwo = document.querySelector(`.computer-gameboard > div > div[data-x="${xCoordRandom + xLengthTwo}"][data-y="${yCoordRandom + yLengthTwo}"]`);
             computerCellTwo.classList.add('computer-ship-placed'); 
-            computerCellTwo.setAttribute('style', 'background-color: green;'); 
+            // computerCellTwo.setAttribute('style', 'background-color: green;'); 
             ComputerPlacedShips[`ship ${index}`] = {coordinates: {0: [xCoordRandom, yCoordRandom], 1: [xCoordRandom + xLengthOne, yCoordRandom + yLengthOne],
                                                                   2: [xCoordRandom + xLengthTwo, yCoordRandom + yLengthTwo]},
                                                     length: ship + 1,
@@ -747,19 +768,19 @@ function ComputerPlaceShips(){
 
             const computerCell = document.querySelector(`.computer-gameboard > div > div[data-x="${xCoordRandom}"][data-y="${yCoordRandom}"]`); 
             computerCell.classList.add('computer-ship-placed');
-            computerCell.setAttribute('style', 'background-color: orange;');
+            // computerCell.setAttribute('style', 'background-color: orange;');
 
             const computerCellOne = document.querySelector(`.computer-gameboard > div > div[data-x="${xCoordRandom + xLengthOne}"][data-y="${yCoordRandom + yLengthOne}"]`);
             computerCellOne.classList.add('computer-ship-placed');
-            computerCellOne.setAttribute('style', 'background-color: orange;');
+            // computerCellOne.setAttribute('style', 'background-color: orange;');
 
             const computerCellTwo = document.querySelector(`.computer-gameboard > div > div[data-x="${xCoordRandom + xLengthTwo}"][data-y="${yCoordRandom + yLengthTwo}"]`);
             computerCellTwo.classList.add('computer-ship-placed'); 
-            computerCellTwo.setAttribute('style', 'background-color: orange;');
+            // computerCellTwo.setAttribute('style', 'background-color: orange;');
 
             const computerCellThree = document.querySelector(`.computer-gameboard > div > div[data-x="${xCoordRandom + xLengthThree}"][data-y="${yCoordRandom + yLengthThree}"]`);
             computerCellThree.classList.add('computer-ship-placed');
-            computerCellThree.setAttribute('style', 'background-color: orange;'); 
+            // computerCellThree.setAttribute('style', 'background-color: orange;'); 
             ComputerPlacedShips[`ship ${index}`] = {coordinates: {0: [xCoordRandom, yCoordRandom], 1: [xCoordRandom + xLengthOne, yCoordRandom + yLengthOne],
                                                                   2: [xCoordRandom + xLengthTwo, yCoordRandom + yLengthTwo],
                                                                   3: [xCoordRandom + xLengthThree, yCoordRandom + yLengthThree]},
@@ -774,6 +795,7 @@ function ComputerPlaceShips(){
 // IntefaceDOM(): Interface section for the user. 
 function InterfaceDOM(){
     const gameboardContainer = document.querySelector('.gameboard-container');
+    const cells = document.querySelectorAll('.player-one-board > div > div'); 
 
     const playerInterface = document.createElement('div');
     playerInterface.classList.add('interface');
@@ -792,21 +814,21 @@ function InterfaceDOM(){
     const numberOfShipsPlaced = document.createElement('div');
     numberOfShipsPlaced.classList.add('number-of-ships'); 
 
+    const commenceAttack = document.createElement('div');
+
+
     playerInterface.appendChild(newGame);
     playerInterface.appendChild(coordinateContainer); 
     playerInterface.appendChild(numberOfShipsPlaced); 
+    playerInterface.appendChild(commenceAttack); 
     gameboardContainer.appendChild(playerInterface);
 
     newGame.addEventListener('click', NewGame);
-
-    // xCoord.addEventListener('click', ChangeToXAxis);
-    // yCoord.addEventListener('click', ChangeToYAxis); 
 }
 
 // ChangeToXAxis(): Will allow the player to place ships along the x-axis.
 function ChangeToXAxis(e){
     const xCoord = document.querySelector('.interface > div > button:nth-child(1)');
-    console.log(xCoord); 
     const yCoord = document.querySelector('.interface > div > button:nth-child(2)'); 
     if (NewGameSelected.newGameSelected)
     {
@@ -816,6 +838,8 @@ function ChangeToXAxis(e){
         xCoord.classList.add('current-coordinate');
         PlaceShips(e);
     }
+
+    // xCoord.removeEventListener('click', ChangeToXAxis);
 }
 
 // ChangeToYAxis(): Will allow the player to place ships along the y-axis. 
@@ -830,6 +854,8 @@ function ChangeToYAxis(e){
         yCoord.classList.add('current-coordinate'); 
         PlaceShips(e);
     }
+
+    // yCoord.removeEventListener('click', ChangeToYAxis); 
 }
 
 // NewGame(): Will begin a new game for the player. 
@@ -847,6 +873,17 @@ function NewGame(){
 
     // TODO: Reset all the cells on each gameboard. 
 
+    // assign empty objects to both of the placement objects. 
+    // Object.assign(PlacedShips, {}); 
+    // Object.assign(ComputerPlacedShips, {});  
+    for (let key in PlacedShips)
+    {
+        delete PlacedShips[key];
+    }
+    
+    AxisChange.axisChange = null;
+    AxisChange.axisWasChanged = false; 
+
     NewGameSelected.newGameSelected = true; 
 
     ActivateGame.activateGame = false;
@@ -857,12 +894,6 @@ function NewGame(){
     ShipData.lengthIndex = 0;
     ShipData.shipLength = 0;
     ShipData.shipsPlaced = 0; 
-
-    AxisChange.axisChange = null;
-    AxisChange.axisWasChanged = false; 
-
-    Object.assign(PlacedShips, {}); // assign empty objects to both of the placement objects. 
-    Object.assign(ComputerPlacedShips, {}); 
     
     // Clean the computer gameboard. 
     computerCells.forEach((computerCell) => {
@@ -878,14 +909,14 @@ function NewGame(){
         cell.classList.remove('hover-test'); 
         cell.classList.remove('player-one-ship-hit');
         cell.classList.remove('computer-hit-missed'); 
-        cell.removeEventListener('click', PlaceOnX); 
-        cell.removeEventListener('click', PlaceOnY);
+        // cell.removeEventListener('click', PlaceOnX); 
+        // cell.removeEventListener('click', PlaceOnY);
         cell.replaceChildren(); 
     });
 
     // Clean the x and y axe buttons. 
-    // xCoord.classList.remove('current-coordinate'); 
-    // yCoord.classList.remove('current-coordinate');
+    xCoord.classList.remove('current-coordinate'); 
+    yCoord.classList.remove('current-coordinate');
     xCoord.addEventListener('click', ChangeToXAxis);
     yCoord.addEventListener('click', ChangeToYAxis); 
 
@@ -893,8 +924,12 @@ function NewGame(){
     document.getElementById('player-gameboard-events').textContent = "";
     document.getElementById('computer-gameboard-events').textContent = "";  
 
+    // Remove Commence Attack Label.
+    document.querySelector('.interface > div:nth-child(4)').classList.remove('commence-attack'); 
+    document.querySelector('.interface > div:nth-child(4)').textContent = ""; 
+
     ComputerPlaceShips(); 
-    PlaceShips(); 
+    PlaceShips();
 }
 
 // EnterX(): Will enter each cell on the x-axis selection. 
@@ -1053,9 +1088,9 @@ function EnterX(e){
 // PlaceOnX(): Will place a ship on the gameboards x-axis.
 function PlaceOnX(e){
     const cells = document.querySelectorAll('.player-one-board > div > div');
-    cells.forEach((cell) => {
-        cell.classList.remove('hover-test'); 
-    }); 
+    // cells.forEach((cell) => {
+    //     cell.classList.remove('hover-test'); 
+    // }); 
 
     if (!DisablePlacement.disablePlacement)
     {
@@ -1332,9 +1367,9 @@ function EnterY(e){
 // PlaceOnY(): Will place a ship on the gameboards y-axis. 
 function PlaceOnY(e){
     const cells = document.querySelectorAll('.player-one-board > div > div');
-    cells.forEach((cell) => {
-        cell.classList.remove('hover-test'); 
-    });
+    // cells.forEach((cell) => {
+    //     cell.classList.remove('hover-test'); 
+    // });
 
     if (!DisablePlacement.disablePlacement)
     {

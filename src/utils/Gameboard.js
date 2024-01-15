@@ -1,5 +1,6 @@
 import { Ship } from "./Ship";
 import { DisplayComputerGameboardEvents } from "../modules/DomContent";
+import { ShipData } from "./ShipData";
 import explosionImage from "../images/explosion.png";
 
 /** Gameboard
@@ -63,6 +64,7 @@ export const Gameboard = () => {
                         if (shipSunk)
                         {
                             PlacedShips[key].sunk = shipSunk; 
+                            ShipData.shipsPlaced--; 
                             console.log('Sunk status should be true: ', PlacedShips[key]); // Testing 
                         }
 
