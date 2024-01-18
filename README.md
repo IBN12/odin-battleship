@@ -16,3 +16,8 @@ the computer. The player is allowed to place 10 ships on their gameboard before 
 will start the game and allow the computer to place ships on their gameboard. The player can change the ship placement axis to the
 x-axis or y-axis by pressing the 'X' or 'Y' button. The player and computer gameboard events will be displayed above the gameboard during
 gameboard interaction between the player and computer. The application is only available for PC. 
+
+<img src="./src/images/odin-battleship.png" />
+
+## Live Demo
+[Battleship Project](https://ibn12.github.io/odin-battleship/) 
