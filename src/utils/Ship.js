@@ -1,6 +1,5 @@
 import { DisplayComputerGameboardEvents } from "../modules/DomContent";
 
-/** Ship */
 // Ship(): Ship factory function. 
 export const Ship = () => {
     let defaultLengths = [0, 0, 0, 0, 1, 1, 1, 2, 2, 3]; 
@@ -24,8 +23,6 @@ export const Ship = () => {
     // isSunk(): Will determine if the ship has sunk. 
     const isSunk = (shipSunk, shipNum) => {
         DisplayComputerGameboardEvents(null, shipSunk, shipNum); 
-        // Note: You need to use the testing file (ship.test.js) 
-        // to test this function. 
     }
 
     return {hit, isSunk, defaultLengths, length, hits, sunk};

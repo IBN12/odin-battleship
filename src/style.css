@@ -46,7 +46,7 @@ body{
 /***************************************************************************************************************************************************************************/
 /* |Main Content Section| */
 #content{
-    border: 1px solid red;
+    /* border: 1px solid red; */
     padding: 10px; 
 }
 
@@ -58,7 +58,6 @@ body{
     justify-content: center;
     gap: 10px;
 
-    border: 1px solid blue;
     padding: 10px;
     width: 1200px;
     margin: 0 auto;
@@ -68,15 +67,9 @@ body{
 .player-one-board{
     display: flex;
     flex-direction: column;
-
-    /* border: 1px solid green; */
-    /* padding: 10px; */
 }
 .player-one-board > div{ /* rows */
     display: flex;
-
-    /* border: 1px solid black; */
-    /* padding: 5px; */
 }
 .player-one-board > div > div{ /* cells */
     display: flex;
@@ -90,7 +83,6 @@ body{
     cursor: pointer;
 }
 .player-one-board > div > div > div{ /* Missed Hit Container */
-    /* border: 1px solid black; */
     height: 20px;
     font-size: 20px;
     color: #d946ef;
@@ -100,14 +92,9 @@ body{
 .computer-gameboard{
     display: flex;
     flex-direction: column;
-
-    /* border: 1px solid purple; */
-    /* padding: 10px; */
 }
 .computer-gameboard > div{ /* Rows */
     display: flex;
-
-    /* padding: 10px; */
 }
 .computer-gameboard > div > div{ /* cells */
     display: flex;
@@ -156,10 +143,6 @@ body{
     flex-direction: column;
     align-items: center;
     gap: 10px;
-    
-    /* border: 1px solid orange; */
-    /* padding: 10px; */
-
 }
 .interface > button{ /* New Button */
     font-family: comfortaa, system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
@@ -178,8 +161,6 @@ body{
 .interface > div:nth-child(2){ /* x and y coordinate container. */
     display: flex;
     gap: 10px;
-
-    /* border: 1px solid black;  */
 }
 .interface > div:nth-child(2) > button{ /* x and y coordinate buttons. */ 
     font-family: comfortaa, system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
@@ -222,7 +203,6 @@ body{
 /* |Gameboard Events Section| */
 /* player-gameboard-events - All the player gameboard events. */
 #player-gameboard-events{
-    border: 1px solid orange;
     padding: 10px;
     margin-bottom: 10px;
     text-align: center; 
@@ -236,7 +216,6 @@ body{
 
 /* computer-gameboard-events - All the computer gameboard events. */
 #computer-gameboard-events{
-    border: 1px solid lightblue;
     padding: 10px;
     margin-bottom: 10px;
     text-align: center; 
@@ -252,12 +231,12 @@ body{
 /***************************************************************************************************************************************************************************/
 /* |Application Title| */
 #application-title{
-    border: 1px solid lightgreen;
     text-align: center;
     font-family: play-pretend, system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-    font-size: 50px;
+    font-size: 60px;
     letter-spacing: 3px;
     color: #e2e8f0;
+    margin-top: 40px;
 }
 
 /***************************************************************************************************************************************************************************/
